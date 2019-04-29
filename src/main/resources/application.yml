@@ -1,0 +1,6 @@
+preprocessing:
+  preprocessors:
+    - ch.uzh.seal.BLogDiff.preprocessing.PreprocessorMaven
+    - ch.uzh.seal.BLogDiff.preprocessing.PreprocessorTravisCI
+  replacement: "<...>"
+
