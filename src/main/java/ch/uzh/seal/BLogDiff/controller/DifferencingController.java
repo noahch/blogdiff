@@ -61,17 +61,8 @@ public class DifferencingController {
         }
 
     }
-//    @RequestMapping("/differencing/{logId}")
-//    public void differencing(@PathVariable("logId") String id) {
-//        Build build = travisRestClient.getBuild(id);
-//        if (build != null){
-//            if(build.getJobs().get(0) != null){
-//                String buildLog = travisRestClient.getLog(build.getJobs().get(0).getId().toString()).getContent();
-//                PreprocessorHandler preprocessorHandler = new PreprocessorHandler();
-//                preprocessorHandler.preprocessLog(buildLog);
-//
-//            }
-//        }
-//        log.info(""+id);
-//    }
+    @RequestMapping("/analysis")
+    public void analysis() {
+       PreprocessingAnalysis.analyseInputDir();
+    }
 }
