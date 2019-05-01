@@ -63,6 +63,11 @@ public class DifferencingController {
     }
     @RequestMapping("/analysis")
     public void analysis() {
-       PreprocessingAnalysis.analyseInputDir();
+        PreprocessingAnalysis.analyseInputDir();
+    }
+
+    @RequestMapping("/reanalysis")
+    public void reAnalysis() {
+        PreprocessingAnalysis.reAnalyseDir();
     }
 }

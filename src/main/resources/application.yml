@@ -7,4 +7,4 @@ preprocessing:
 analysis:
   inputDirGithub: "C:\\Data\\BA\\outputgh\\"
   inputDirTravis: "C:\\Data\\BA\\outputtravis\\"
-  outputDir: "C:\\Data\\BA\\analysis\\"
+  outputDir: "C:\\Data\\UZH\\BA\\analysis\\"

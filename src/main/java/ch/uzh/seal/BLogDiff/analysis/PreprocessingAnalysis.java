@@ -103,4 +103,19 @@ public class PreprocessingAnalysis {
             log.info(file.getName());
         }
     }
+
+    public static void reAnalyseDir() {
+        File dir = new File(outputDir);
+        File[] files = dir.listFiles();
+
+        for (int i = 0; i < files.length; i++){
+            File file = files[i];
+            if(file.isDirectory()){
+                String fdir = outputDir + File.separator + file.getName() + File.separator + file.listFiles()[0].getName() + File.separator;
+                String log = FileUtils.readFile(fdir + "log.txt");
+                String processedLog = preprocessorHandler.preprocessLog(log);
+                FileUtils.writeFile(fdir, "log_reProcessed.txt", processedLog);
+            }
+        }
+    }
 }
