@@ -1,4 +1,4 @@
-package ch.uzh.seal.BLogDiff.model;
+package ch.uzh.seal.BLogDiff.model.rest;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;

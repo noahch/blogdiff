@@ -12,7 +12,8 @@ public class PreprocessorTravisCI implements Preprocessor{
         StringBuilder sb = new StringBuilder();
         String prevLine = "";
         for (int i = 0; i < lines.length; i++){
-            String s = filterHostname(lines[i], replacement);
+            String s = lines[i].trim();
+            s = filterHostname(s, replacement);
             s = filterInstance(s, replacement);
             s = filterStartup(s, replacement);
             s = filterGitDownload(s, prevLine, replacement);
@@ -23,8 +24,8 @@ public class PreprocessorTravisCI implements Preprocessor{
             prevLine = lines[i];
             if (!s.equals("")){
                 s  += "\n";
+                sb.append(s);
             }
-            sb.append(s);
         }
         return sb.toString();
     }

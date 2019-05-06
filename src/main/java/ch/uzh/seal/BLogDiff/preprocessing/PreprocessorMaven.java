@@ -13,7 +13,9 @@ public class PreprocessorMaven implements Preprocessor {
         StringBuilder sb = new StringBuilder();
         String prevLine = "";
         for (int i = 0; i < lines.length; i++){
-            String s = filterDownloadSpeed(lines[i], replacement);
+            String s = lines[i].trim();
+            s = filterConsoleCommands(s);
+            s = filterDownloadSpeed(s, replacement);
             s = filterFinalMemeory(s, replacement);
             s = filterProgress(s, prevLine, replacement);
             s = filterTime(s, replacement);
@@ -21,8 +23,8 @@ public class PreprocessorMaven implements Preprocessor {
             prevLine = lines[i];
             if (!s.equals("")){
                 s  += "\n";
+                sb.append(s);
             }
-            sb.append(s);
         }
         return sb.toString();
     }
@@ -52,5 +54,9 @@ public class PreprocessorMaven implements Preprocessor {
     }
     private String filterTimestamp(String line, String replacement) {
         return line.replaceAll("((\\d{4}(-\\d{2}){2}T?)?(\\d{2}:)?\\d{2}:\\d{2}Z?((\\.\\d{1,3})|(\\+\\d{2}:\\d{2}))?(\\s|\\W|$))", replacement);
+    }
+
+    private String filterConsoleCommands(String line) {
+        return line.replaceAll("(\\x1b\\[[0-9;]*m)", "");
     }
 }

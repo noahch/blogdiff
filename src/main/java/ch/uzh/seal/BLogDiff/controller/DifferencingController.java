@@ -2,32 +2,32 @@ package ch.uzh.seal.BLogDiff.controller;
 
 import ch.uzh.seal.BLogDiff.analysis.PreprocessingAnalysis;
 import ch.uzh.seal.BLogDiff.client.TravisRestClient;
-import ch.uzh.seal.BLogDiff.model.Build;
-import ch.uzh.seal.BLogDiff.model.Log;
-import ch.uzh.seal.BLogDiff.preprocessing.Preprocessor;
+import ch.uzh.seal.BLogDiff.model.parsing.BuildLog;
+import ch.uzh.seal.BLogDiff.model.rest.Build;
+import ch.uzh.seal.BLogDiff.parsing.TravisMavenParsingHandler;
 import ch.uzh.seal.BLogDiff.preprocessing.PreprocessorConfig;
 import ch.uzh.seal.BLogDiff.preprocessing.PreprocessorHandler;
-import ch.uzh.seal.BLogDiff.preprocessing.PreprocessorMaven;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @Slf4j
 @EnableConfigurationProperties(value = PreprocessorConfig.class)
+@CrossOrigin(origins = "http://localhost:4200")
 public class DifferencingController {
 
     private final TravisRestClient travisRestClient = new TravisRestClient();
 
-
     @Autowired
     private PreprocessorHandler preprocessorHandler;
+
+    @Autowired
+    private TravisMavenParsingHandler travisMavenParsingHandler;
 
 
     @RequestMapping("/differencing/{logId}")
@@ -42,6 +42,22 @@ public class DifferencingController {
         }
         return "";
     }
+
+    @RequestMapping("/{logId}")
+    public BuildLog all(@PathVariable("logId") String id) {
+        Build build = travisRestClient.getBuild(id);
+        if (build != null){
+            if(build.getJobs().get(0) != null){
+                String log = travisRestClient.getLog(build.getJobs().get(0).getId().toString()).getContent();
+                String filteredLog = preprocessorHandler.preprocessLog(log);
+                return travisMavenParsingHandler.parse(filteredLog);
+
+
+            }
+        }
+        return null;
+    }
+
 
     @RequestMapping("/analysis/{logId1}/{logId2}")
     public void analysePreprocessing(@PathVariable("logId1") String logId1, @PathVariable("logId2")String logId2){

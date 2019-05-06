@@ -1,7 +1,7 @@
 package ch.uzh.seal.BLogDiff.client;
 
-import ch.uzh.seal.BLogDiff.model.Build;
-import ch.uzh.seal.BLogDiff.model.Log;
+import ch.uzh.seal.BLogDiff.model.rest.Build;
+import ch.uzh.seal.BLogDiff.model.rest.Log;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.extern.slf4j.Slf4j;

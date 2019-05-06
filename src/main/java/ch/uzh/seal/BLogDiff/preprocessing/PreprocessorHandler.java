@@ -1,15 +1,10 @@
 package ch.uzh.seal.BLogDiff.preprocessing;
 
-import ch.uzh.seal.BLogDiff.model.Build;
-import ch.uzh.seal.BLogDiff.model.Log;
+import ch.uzh.seal.BLogDiff.model.rest.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Slf4j

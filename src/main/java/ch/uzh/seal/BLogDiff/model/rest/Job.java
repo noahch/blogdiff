@@ -1,15 +1,13 @@
-package ch.uzh.seal.BLogDiff.model;
+package ch.uzh.seal.BLogDiff.model.rest;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.List;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ToString
-public class Build {
+public class Job {
     @Getter
     @Setter
     private Long id;
@@ -20,17 +18,10 @@ public class Build {
 
     @Getter
     @Setter
-    private String previous_state;
+    private Repository repository;
 
     @Getter
     @Setter
-    private List<Job> jobs;
+    private Build build;
 
-    @Getter
-    @Setter
-    private Branch branch;
-
-    @Getter
-    @Setter
-    private String number;
 }

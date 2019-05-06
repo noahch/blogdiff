@@ -1,4 +1,4 @@
-package ch.uzh.seal.BLogDiff.model;
+package ch.uzh.seal.BLogDiff.model.rest;
 
 import lombok.Builder;
 import lombok.Getter;
