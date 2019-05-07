@@ -10,4 +10,5 @@ import lombok.Setter;
 public class LogLine {
     private String content;
     private int lineIndex;
+    private int internalLineIndex;
 }

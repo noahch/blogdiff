@@ -1,10 +1,8 @@
 package ch.uzh.seal.BLogDiff.parsing;
 
-import ch.uzh.seal.BLogDiff.model.parsing.BuildLog;
-import ch.uzh.seal.BLogDiff.model.parsing.LogLine;
+import ch.uzh.seal.BLogDiff.model.parsing.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import ch.uzh.seal.BLogDiff.model.parsing.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +19,7 @@ public class TravisMavenParsingHandler implements ParsingHandler {
     TravisParser travisParser;
 
     @Override
-    public BuildLog parse(String buildLog) {
+    public BuildLogTree parse(String buildLog) {
         String[] array = buildLog.split("travis_fold:end:git.checkout");
 
         String travis = array[0];
@@ -40,10 +38,11 @@ public class TravisMavenParsingHandler implements ParsingHandler {
             mvnIdx++;
         }
 
-        return BuildLog.builder()
-                .buildComponent(mavenParser.parse(mavenLines.toArray(new LogLine[mavenLines.size()])))
-                .ciComponent(travisParser.parse(travisLines.toArray(new LogLine[travisLines.size()])))
-                .build();
+        List<BuildLogNode> nodes = new ArrayList<>();
+        BuildLogNode node = travisParser.parse(travisLines.toArray(new LogLine[travisLines.size()]));
+        node.setLogNodes(Arrays.asList(mavenParser.parse(mavenLines.toArray(new LogLine[mavenLines.size()]))));
+        nodes.add(node);
+        return BuildLogTree.builder().nodes(nodes).build();
     }
 
     private LogLine mapToLogLine(String line, int idx){

@@ -14,17 +14,18 @@ import java.util.regex.Pattern;
 public class MavenParser implements Parser {
 
     @Override
-    public Component parse(LogLine[] input) {
+    public BuildLogNode parse(LogLine[] input) {
         int firstModule = getIndexOfNextModule(input,0);
-        return MvnComponent.builder()
-                .linesBeforeModules(subArrayToList(input, 0, firstModule))
-                .modules(mapModules(input, firstModule, input.length))
+        return BuildLogNode.builder()
+                .linesBefore(subArrayToList(input, 0, firstModule))
+                .logNodes(mapModules(input, firstModule, input.length))
+                .nodeName("Maven")
                 .build();
     }
 
-    private List<Module> mapModules(LogLine[] lines, int start, int end ) {
+    private List<BuildLogNode> mapModules(LogLine[] lines, int start, int end ) {
         int processingIndex = start;
-        List<Module> modules = new ArrayList<>();
+        List<BuildLogNode> modules = new ArrayList<>();
         while (getIndexOfNextModule(lines, processingIndex) != -1) {
             processingIndex = getIndexOfNextModule(lines, processingIndex);
             int nextIndex = getIndexOfNextModule(lines, processingIndex+1);
@@ -38,11 +39,11 @@ public class MavenParser implements Parser {
     }
 
 
-    private Module mapModule(LogLine[] lines, int start, int end) {
-        return Module.builder()
-                .linesBeforeGoals(subArrayToList(lines, start, getIndexOfNextGoal(lines,start, end)))
-                .goals(mapGoals(lines, start, end))
-                .name(extractModuleName(lines[start+1].getContent()))
+    private BuildLogNode mapModule(LogLine[] lines, int start, int end) {
+        return BuildLogNode.builder()
+                .linesBefore(subArrayToList(lines, start, getIndexOfNextGoal(lines,start, end)))
+                .logNodes(mapGoals(lines, start, end))
+                .nodeName(extractModuleName(lines[start+1].getContent()))
                 .build();
     }
 
@@ -68,9 +69,9 @@ public class MavenParser implements Parser {
         return -1;
     }
 
-    private List<Goal> mapGoals(LogLine[] lines, int start, int end ) {
+    private List<BuildLogNode> mapGoals(LogLine[] lines, int start, int end ) {
         int processingIndex = start;
-        List<Goal> goals = new ArrayList<>();
+        List<BuildLogNode> goals = new ArrayList<>();
         while (getIndexOfNextGoal(lines, processingIndex, end) != -1) {
             processingIndex = getIndexOfNextGoal(lines, processingIndex, end);
             int nextIndex = getIndexOfNextGoal(lines, processingIndex+1, end);
@@ -83,13 +84,14 @@ public class MavenParser implements Parser {
         return goals;
     }
 
-    private Goal mapGoal(LogLine[] lines, int start, int end) {
-        return Goal.builder().plugin(extractPlugin(lines[start].getContent())).goal(extractGoal(lines[start].getContent())).logLines(subArrayToList(lines,start,end)).build();
+    private BuildLogNode mapGoal(LogLine[] lines, int start, int end) {
+        return BuildLogNode.builder().nodeName(extractPlugin(lines[start].getContent()) + " " + extractGoal(lines[start].getContent()))
+                .linesBefore(subArrayToList(lines,start,end)).build();
     }
 
     private String extractPlugin(String logLine){
 
-        Pattern pattern = Pattern.compile("([a-zA-Z-_]*:(\\d\\.?)*:)");
+        Pattern pattern = Pattern.compile("([a-zA-Z-_]*:(\\d\\.?)*.*:)");
         Matcher matcher = pattern.matcher(logLine);
         if (matcher.find())
         {
@@ -113,25 +115,21 @@ public class MavenParser implements Parser {
 
     private int getIndexOfNextGoal(LogLine[] lines, int start, int end){
         for(int i = start; i < end; i++){
-            if(lines[i].getContent().matches("(.*---\\s[a-zA-Z-_]*:(\\d\\.?)*:[a-zA-Z-_]*\\s*.*@\\s*[a-zA-Z-_]*\\s*---.*)")){
+            if(lines[i].getContent().matches("(.*---\\s[a-zA-Z-_]*:(\\d\\.?)*.*:[a-zA-Z-_]*\\s*.*@\\s*[a-zA-Z-_]*\\s*---.*)")){
                 return i;
             }
         }
         return -1;
     }
 
-    private List<LogLine> mapRaw(String[] lines, int start,  int end){
-        List<LogLine> logLines = new ArrayList<>();
-        for(int i = start; i < end; i++){
-            logLines.add(LogLine.builder().content(lines[i]).build());
-        }
-        return logLines;
-    }
 
     private List<LogLine> subArrayToList(LogLine[] lines, int start,  int end){
         List<LogLine> logLines = new ArrayList<>();
+        int internalIdx = 1;
         for(int i = start; i < end; i++){
+            lines[i].setInternalLineIndex(internalIdx);
             logLines.add(lines[i]);
+            internalIdx++;
         }
         return logLines;
     }

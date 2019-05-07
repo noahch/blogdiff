@@ -1,7 +1,7 @@
 package ch.uzh.seal.BLogDiff.parsing;
 
-import ch.uzh.seal.BLogDiff.model.parsing.BuildLog;
+import ch.uzh.seal.BLogDiff.model.parsing.BuildLogTree;
 
 public interface ParsingHandler {
-    BuildLog parse(String buildLog);
+    BuildLogTree parse(String buildLog);
 }

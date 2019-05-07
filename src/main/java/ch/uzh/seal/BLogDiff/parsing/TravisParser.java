@@ -1,9 +1,6 @@
 package ch.uzh.seal.BLogDiff.parsing;
 
-import ch.uzh.seal.BLogDiff.model.parsing.Component;
-import ch.uzh.seal.BLogDiff.model.parsing.LogLine;
-import ch.uzh.seal.BLogDiff.model.parsing.MvnComponent;
-import ch.uzh.seal.BLogDiff.model.parsing.TravisComponent;
+import ch.uzh.seal.BLogDiff.model.parsing.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,22 +9,17 @@ import java.util.List;
 public class TravisParser implements Parser {
 
     @Override
-    public Component parse(LogLine[] input) {
-       return TravisComponent.builder().logLines(subArrayToList(input, 0, input.length)).build();
-    }
-
-    private List<LogLine> mapRaw(String[] lines, int start, int end){
-        List<LogLine> logLines = new ArrayList<>();
-        for(int i = start; i < end; i++){
-            logLines.add(LogLine.builder().content(lines[i]).build());
-        }
-        return logLines;
+    public BuildLogNode parse(LogLine[] input) {
+       return BuildLogNode.builder().linesBefore(subArrayToList(input, 0, input.length)).nodeName("Travis").build();
     }
 
     private List<LogLine> subArrayToList(LogLine[] lines, int start,  int end){
         List<LogLine> logLines = new ArrayList<>();
+        int internalIdx = 1;
         for(int i = start; i < end; i++){
+            lines[i].setInternalLineIndex(internalIdx);
             logLines.add(lines[i]);
+            internalIdx++;
         }
         return logLines;
     }

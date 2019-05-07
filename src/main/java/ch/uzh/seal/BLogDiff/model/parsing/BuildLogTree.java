@@ -9,8 +9,6 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class Module {
-    private String name;
-    private List<LogLine> linesBeforeGoals;
-    private List<Goal> goals;
+public class BuildLogTree {
+    private List<BuildLogNode> nodes;
 }

@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class TravisComponent extends Component {
-//    private List<Phase> phases;
-    private List<LogLine> logLines;
+public class EditTree {
+
+    private List<EditAction> childrenActions;
 }
