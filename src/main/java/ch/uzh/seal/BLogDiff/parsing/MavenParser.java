@@ -13,8 +13,11 @@ import java.util.regex.Pattern;
 @Slf4j
 public class MavenParser implements Parser {
 
+    private List<String> moduleNames;
+
     @Override
     public BuildLogNode parse(LogLine[] input) {
+        moduleNames = new ArrayList<>();
         int firstModule = getIndexOfNextModule(input,0);
         return BuildLogNode.builder()
                 .linesBefore(subArrayToList(input, 0, firstModule))
@@ -52,7 +55,13 @@ public class MavenParser implements Parser {
         Matcher matcher = pattern.matcher(logLine);
         if (matcher.find())
         {
-           return matcher.group(1).replace("Building ", "");
+           String moduleName = matcher.group(1).replace("Building ", "");
+           if(moduleNames.contains(moduleName)){
+               moduleName = moduleName + " 1";
+           }
+           moduleNames.add(moduleName);
+           return moduleName;
+
         }
         log.warn("Module name could not be extracted.");
         return logLine;

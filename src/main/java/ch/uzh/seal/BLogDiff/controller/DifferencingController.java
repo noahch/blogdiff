@@ -2,6 +2,10 @@ package ch.uzh.seal.BLogDiff.controller;
 
 import ch.uzh.seal.BLogDiff.analysis.PreprocessingAnalysis;
 import ch.uzh.seal.BLogDiff.client.TravisRestClient;
+import ch.uzh.seal.BLogDiff.differencing.ASTDifferencer;
+import ch.uzh.seal.BLogDiff.differencing.LineDifferencer;
+import ch.uzh.seal.BLogDiff.mapping.GumTreeMapper;
+import ch.uzh.seal.BLogDiff.mapping.NodeLevelMapper;
 import ch.uzh.seal.BLogDiff.model.DifferencingResult;
 import ch.uzh.seal.BLogDiff.model.parsing.BuildLogTree;
 import ch.uzh.seal.BLogDiff.model.parsing.EditAction;
@@ -35,6 +39,10 @@ public class DifferencingController {
     @Autowired
     private TravisMavenParsingHandler travisMavenParsingHandler;
 
+    @Autowired
+    private NodeLevelMapper nodeLevelMapper;
+
+
 
     @RequestMapping("/differencing/{logId}")
     public String differencing(@PathVariable("logId") String id) {
@@ -63,11 +71,17 @@ public class DifferencingController {
                         String log2 = travisRestClient.getLog(build2.getJobs().get(0).getId().toString()).getContent();
                         String filteredLog2 = preprocessorHandler.preprocessLog(log2);
 
+                        BuildLogTree tree1 = travisMavenParsingHandler.parse(filteredLog);
+                        BuildLogTree tree2 = travisMavenParsingHandler.parse(filteredLog2);
 
                         return DifferencingResult.builder()
-                                .treeBefore(travisMavenParsingHandler.parse(filteredLog))
-                                .treeAfter(travisMavenParsingHandler.parse(filteredLog2))
-                                .editTree(EditTree.builder().build()).build();
+                                .treeBefore(tree1)
+                                .treeAfter(tree2)
+                                .editTree(nodeLevelMapper.map(tree1,tree2, new ASTDifferencer())).build();
+//                        return DifferencingResult.builder()
+//                                .treeBefore(tree1)
+//                                .treeAfter(tree2)
+//                                .editTree(gumTreeMapper.map(tree1,tree2)).build();
 
                     }
                 }

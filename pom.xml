@@ -64,6 +64,13 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>2.9.8</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.github.gumtreediff/core -->
+		<dependency>
+			<groupId>com.github.gumtreediff</groupId>
+			<artifactId>core</artifactId>
+			<version>2.1.2</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

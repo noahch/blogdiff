@@ -10,6 +10,6 @@ import java.util.List;
 @Getter
 @Setter
 public class EditTree {
-
+    private List<NodeAction> nodeActions;
     private List<EditAction> childrenActions;
 }
