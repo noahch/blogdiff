@@ -3,8 +3,10 @@ package ch.uzh.seal.BLogDiff.differencing;
 import ch.uzh.seal.BLogDiff.model.parsing.LineAction;
 import ch.uzh.seal.BLogDiff.model.parsing.LineActionType;
 import ch.uzh.seal.BLogDiff.model.parsing.LogLine;
+import ch.uzh.seal.BLogDiff.utils.FileUtils;
 import com.github.gumtreediff.actions.ActionGenerator;
 import com.github.gumtreediff.actions.model.*;
+import com.github.gumtreediff.matchers.CompositeMatchers;
 import com.github.gumtreediff.matchers.Matcher;
 import com.github.gumtreediff.matchers.Matchers;
 import com.github.gumtreediff.tree.Tree;
@@ -19,13 +21,30 @@ public class ASTDifferencer implements Differencer {
     public List<LineAction> diffLogLines(List<LogLine> lines1, List<LogLine> lines2) {
         lines1 = lines1 == null ? new ArrayList<>() : lines1;
         lines2 = lines2 == null ? new ArrayList<>() : lines2;
+
+//        List<String> l1 = FileUtils.readFileAsList("C:\\Data\\BA\\t1.txt");
+//        lines1 = new ArrayList<>();
+//        int i = 1;
+//        for(String s : l1) {
+//            lines1.add(LogLine.builder().content(s).internalLineIndex(i).build());
+//            i++;
+//        }
+//        List<String> l2 = FileUtils.readFileAsList("C:\\Data\\BA\\t2.txt");
+//        lines2 = new ArrayList<>();
+//        i = 1;
+//        for(String s : l2) {
+//            lines2.add(LogLine.builder().content(s).internalLineIndex(i).build());
+//            i++;
+//        }
+
         Tree src = createTree(lines1);
         Tree dst = createTree(lines2);
+
+
 
         Matcher matcher = Matchers.getInstance().getMatcher(src, dst); // retrieve the default matcher
         matcher.match();
         matcher.getMappings(); // return the mapping store
-        matcher.getMappingsAsSet();
         ActionGenerator actionGenerator = new ActionGenerator(src, dst, matcher.getMappings());
         actionGenerator.generate();
         List<Action> actions = actionGenerator.getActions(); // return the actions

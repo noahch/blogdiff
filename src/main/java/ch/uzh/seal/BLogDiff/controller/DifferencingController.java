@@ -59,6 +59,31 @@ public class DifferencingController {
 
     @RequestMapping("/{logId1}/{logId2}")
     public DifferencingResult all(@PathVariable("logId1") String id1, @PathVariable("logId2") String id2) {
+
+        // TODO: preload and process other logs
+        // automatically find previous failed log
+        String log = travisRestClient.getLog(id1).getContent();
+        String filteredLog = preprocessorHandler.preprocessLog(log);
+
+        String log2 = travisRestClient.getLog(id2).getContent();
+        String filteredLog2 = preprocessorHandler.preprocessLog(log2);
+
+        BuildLogTree tree1 = travisMavenParsingHandler.parse(filteredLog);
+        BuildLogTree tree2 = travisMavenParsingHandler.parse(filteredLog2);
+
+        return DifferencingResult.builder()
+                .treeBefore(tree1)
+                .treeAfter(tree2)
+                .editTree(nodeLevelMapper.map(tree1, tree2, new LineDifferencer())).build();
+    }
+
+
+
+
+
+
+//    @RequestMapping("/{logId1}/{logId2}")
+    public DifferencingResult all_(@PathVariable("logId1") String id1, @PathVariable("logId2") String id2) {
         Build build = travisRestClient.getBuild(id1);
         if (build != null){
             if(build.getJobs().get(0) != null){
@@ -77,7 +102,7 @@ public class DifferencingController {
                         return DifferencingResult.builder()
                                 .treeBefore(tree1)
                                 .treeAfter(tree2)
-                                .editTree(nodeLevelMapper.map(tree1,tree2, new ASTDifferencer())).build();
+                                .editTree(nodeLevelMapper.map(tree1,tree2, new LineDifferencer())).build();
 //                        return DifferencingResult.builder()
 //                                .treeBefore(tree1)
 //                                .treeAfter(tree2)

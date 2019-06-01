@@ -1,6 +1,7 @@
 package ch.uzh.seal.BLogDiff.client;
 
 import ch.uzh.seal.BLogDiff.model.rest.Build;
+import ch.uzh.seal.BLogDiff.model.rest.Job;
 import ch.uzh.seal.BLogDiff.model.rest.Log;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
@@ -47,6 +48,17 @@ public class TravisRestClient extends AbstractUnirestClient {
         return buildLog;
     }
 
+    /**
+     * Get the job form the travis api
+     * @param jobIdentifier jobId
+     * @return Log
+     */
+    public Job getJob(String jobIdentifier){
+        HttpResponse<Job> response = Unirest.get(travisApiBaseUrl + "job/" + jobIdentifier).asObject(Job.class);
+        Job job = response.getBody();
+        log.info("job retrieved:" + job.getId());
+        return job;
+    }
 
 
 }
