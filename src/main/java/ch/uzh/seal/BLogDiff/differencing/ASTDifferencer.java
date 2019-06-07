@@ -67,7 +67,7 @@ public class ASTDifferencer implements Differencer {
         }
         parent.setHeight(1);
         parent.setDepth(0);
-        parent.setSize(lines.size());
+        parent.setSize(lines.size()+1);
         parent.setPos(0);
         parent.setLength(4);
         parent.setHash("Root".hashCode());

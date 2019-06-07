@@ -34,13 +34,13 @@ public class LineDifferencer implements Differencer {
                     continue outer;
                 }else{
                     // Check similarity --> Update
-                    if(similarity(lines1[i], lines2[j]) <= 0.25){
+                    if(similarity(lines1[i], lines2[j]) <= 0.15){
                         log.info(String.format("Index %d %s and %d %s matched as update", i,lines1[i] ,j ,lines2[j]));
                         actions.add(LineAction.builder()
                                 .contentBefore(lines1[i])
                                 .contentAfter(lines2[j])
-                                .positionBefore(i)
-                                .positionAfter(j)
+                                .positionBefore(i+1)
+                                .positionAfter(j+1)
                                 .type(LineActionType.UPDATE).build());
                         i++;
                         j++;

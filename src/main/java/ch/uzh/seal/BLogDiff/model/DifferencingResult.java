@@ -10,6 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DifferencingResult {
+    private String jobIdBefore;
+    private String jobIdAfter;
     private BuildLogTree treeBefore;
     private BuildLogTree treeAfter;
     private EditTree editTree;

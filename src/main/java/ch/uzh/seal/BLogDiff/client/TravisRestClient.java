@@ -1,18 +1,24 @@
 package ch.uzh.seal.BLogDiff.client;
 
 import ch.uzh.seal.BLogDiff.model.rest.Build;
+import ch.uzh.seal.BLogDiff.model.rest.Builds;
 import ch.uzh.seal.BLogDiff.model.rest.Job;
 import ch.uzh.seal.BLogDiff.model.rest.Log;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 
 /**
  * TravisRestClient handles requests to the travis-api/v3/
  */
 @Slf4j
+@Component
 public class TravisRestClient extends AbstractUnirestClient {
 
     private final String travisApiBaseUrl = "https://api.travis-ci.org/v3/";
@@ -37,6 +43,20 @@ public class TravisRestClient extends AbstractUnirestClient {
     }
 
     /**
+     * Get information of all builds in the repository form the travis api
+     * @param repositoryIdentifier repositoryId oder repositorySlug
+     * @return Build
+     */
+    public Builds getBuilds(String repositoryIdentifier){
+        // TODO: handle paging if there are more than 20 builds
+        HttpResponse<Builds> response = Unirest.get(travisApiBaseUrl + "repo/" + encodeRepositoryIdentifier(repositoryIdentifier)+ "/builds?include=build.jobs" ).asObject(Builds.class);
+        Builds builds = response.getBody();
+        log.info("Builds retrieved: " + builds.toString());
+        return builds;
+    }
+
+
+    /**
      * Get the log of a job form the travis api
      * @param jobIdentifier jobId
      * @return Log
@@ -58,6 +78,24 @@ public class TravisRestClient extends AbstractUnirestClient {
         Job job = response.getBody();
         log.info("job retrieved:" + job.getId());
         return job;
+    }
+
+    /**
+     * Returns an encoded repositoryIdentifier if it is a slug, else it return the repositoryId as is.
+     * @param repositoryIdentifier repositoryId oder repositorySlug
+     * @return repositoryIdentifier in a format that can be used for the travis api
+     */
+    private String encodeRepositoryIdentifier(String repositoryIdentifier) {
+        if (!StringUtils.isNumeric(repositoryIdentifier)){
+            try {
+                return URLEncoder.encode(repositoryIdentifier, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                return null;
+            }
+        } else {
+            return repositoryIdentifier;
+        }
     }
 
 

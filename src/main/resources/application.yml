@@ -1,3 +1,7 @@
+spring:
+  aop:
+    proxy-target-class: true
+
 preprocessing:
   preprocessors:
     - ch.uzh.seal.BLogDiff.preprocessing.PreprocessorMaven
@@ -8,3 +12,5 @@ analysis:
   inputDirGithub: "C:\\Data\\BA\\outputgh\\"
   inputDirTravis: "C:\\Data\\BA\\outputtravis\\"
   outputDir: "C:\\Data\\UZH\\BA\\analysis\\"
+
+

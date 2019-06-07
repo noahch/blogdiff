@@ -3,6 +3,7 @@ package ch.uzh.seal.BLogDiff.parsing;
 import ch.uzh.seal.BLogDiff.model.parsing.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +21,8 @@ public class TravisMavenParsingHandler implements ParsingHandler {
 
     @Override
     public BuildLogTree parse(String buildLog) {
+        try {
+
         String[] array = buildLog.split("travis_fold:end:git.checkout");
 
         String travis = array[0];
@@ -43,6 +46,17 @@ public class TravisMavenParsingHandler implements ParsingHandler {
         node.setLogNodes(Arrays.asList(mavenParser.parse(mavenLines.toArray(new LogLine[mavenLines.size()]))));
         nodes.add(node);
         return BuildLogTree.builder().nodes(nodes).build();
+        } catch (Exception e){
+            log.error("Something went wrong whilst parsing... fallback parsing applied.");
+            List<BuildLogNode> nodes = new ArrayList<>();
+            String[] lines = buildLog.split("\n");
+            List<LogLine> logLines = new ArrayList<>();
+            for(int i = 0; i < lines.length; i++){
+                logLines.add(LogLine.builder().lineIndex(i).internalLineIndex(i).content(lines[i]).build());
+            }
+            nodes.add(BuildLogNode.builder().nodeName("UNK").linesBefore(logLines).build());
+            return BuildLogTree.builder().nodes(nodes).build();
+        }
     }
 
     private LogLine mapToLogLine(String line, int idx){

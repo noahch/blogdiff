@@ -1,5 +1,6 @@
 package ch.uzh.seal.BLogDiff.model.rest;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,4 +34,9 @@ public class Build {
     @Getter
     @Setter
     private String number;
+
+    @JsonIgnore
+    public int getNumberAsInt(){
+        return Integer.valueOf(number);
+    }
 }
