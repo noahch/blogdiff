@@ -4,10 +4,10 @@ services:
 before_install:
   - chmod +x mvnw
 script:
-  - docker build -t blogdiff .
+  - docker build -t noahch/blogdiff .
 
 after_success:
   - if [[ "$TRAVIS_BRANCH" == "master" ]]; then
     docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
-    docker push blogdiff;
+    docker push noahch/blogdiff;
     fi
