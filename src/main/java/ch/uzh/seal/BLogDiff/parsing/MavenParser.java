@@ -16,12 +16,20 @@ public class MavenParser implements Parser {
     private List<String> moduleNames;
 
     @Override
-    public BuildLogNode parse(LogLine[] input) {
+    public BuildLogNode parse(LogLine[] linesBefore, LogLine[] linesAfter) {
         moduleNames = new ArrayList<>();
-        int firstModule = getIndexOfNextModule(input,0);
+        int firstModule = getIndexOfNextModule(linesBefore,0);
+        // No module found
+        if(firstModule == -1){
+            return BuildLogNode.builder()
+                    .linesBefore(subArrayToList(linesBefore, 0, linesBefore.length))
+                    .logNodes(null)
+                    .nodeName("Maven")
+                    .build();
+        }
         return BuildLogNode.builder()
-                .linesBefore(subArrayToList(input, 0, firstModule))
-                .logNodes(mapModules(input, firstModule, input.length))
+                .linesBefore(subArrayToList(linesBefore, 0, firstModule))
+                .logNodes(mapModules(linesBefore, firstModule, linesBefore.length))
                 .nodeName("Maven")
                 .build();
     }

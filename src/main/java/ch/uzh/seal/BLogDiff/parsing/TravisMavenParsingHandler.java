@@ -1,10 +1,10 @@
 package ch.uzh.seal.BLogDiff.parsing;
 
+import ch.uzh.seal.BLogDiff.exception.ParseException;
 import ch.uzh.seal.BLogDiff.model.parsing.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,44 +22,84 @@ public class TravisMavenParsingHandler implements ParsingHandler {
     @Override
     public BuildLogTree parse(String buildLog) {
         try {
+            // Spilt the build log into travis and maven parts
+            String[] splitArray = buildLog.split("(?<=travis_fold:end:git.checkout)");
 
-        String[] array = buildLog.split("travis_fold:end:git.checkout");
+            // Initialise nodeList for resulting BuildLogTree
+            List<BuildLogNode> nodes = new ArrayList<>();
 
-        String travis = array[0];
-        List<LogLine> travisLines = new ArrayList<>();
-        String[] travisArray = travis.split("\n");
-        for(int i = 0; i < travisArray.length; i++){
-            travisLines.add(mapToLogLine(travisArray[i], i+1));
-        }
+            // Initialise LogLine Lists
+            List<LogLine> travisLinesBefore = new ArrayList<>();
+            List<LogLine> travisLinesAfter = new ArrayList<>();
+            List<LogLine> mavenLines = new ArrayList<>();
 
-        String mvn = array[1];
-        List<LogLine> mavenLines = new ArrayList<>();
-        String[] mavenArray = mvn.split("\n");
-        int mvnIdx = travisArray.length + 1;
-        for(int i = 0; i < mavenArray.length; i++){
-            mavenLines.add(mapToLogLine(mavenArray[i],  mvnIdx));
-            mvnIdx++;
-        }
+            // Travis Maven Split successful
+            if(splitArray.length > 1){
 
-        List<BuildLogNode> nodes = new ArrayList<>();
-        BuildLogNode node = travisParser.parse(travisLines.toArray(new LogLine[travisLines.size()]));
-        node.setLogNodes(Arrays.asList(mavenParser.parse(mavenLines.toArray(new LogLine[mavenLines.size()]))));
-        nodes.add(node);
-        return BuildLogTree.builder().nodes(nodes).build();
+                travisLinesBefore = mapLinesToList(splitArray[0].split("\n"), 1);
+
+                String restLines = splitArray[1];
+
+                String[] splitArray2 = restLines.split("\n");
+                int splitIdx = getIndexOfLastMavenLine(splitArray2);
+
+                // Travis lines after maven found
+                if(splitIdx != -1){
+                    mavenLines = mapLinesToList(ArrayUtils.subarray(splitArray2, 0, splitIdx+1), travisLinesBefore.size() + 1);
+                    travisLinesAfter = mapLinesToList(ArrayUtils.subarray(splitArray2, splitIdx + 1, splitArray2.length), travisLinesBefore.size() + mavenLines.size() + 1);
+                }
+
+            } else { // Travis Maven Split not successful
+                travisLinesBefore = mapLinesToList(splitArray[0].split("\n"), 1);;
+            }
+
+            if(travisLinesBefore.size() > 0){
+
+                // Parse Travis data
+                BuildLogNode node = travisParser.parse(
+                        travisLinesBefore.toArray(new LogLine[travisLinesBefore.size()]),
+                        travisLinesAfter.toArray(new LogLine[travisLinesAfter.size()]));
+                if(mavenLines.size() > 0) {
+                    node.setLogNodes(Arrays.asList(mavenParser.parse(mavenLines.toArray(new LogLine[mavenLines.size()]), null)));
+                } else {
+                    node.setLogNodes(new ArrayList<>());
+                }
+                nodes.add(node);
+                return BuildLogTree.builder().nodes(nodes).build();
+            } else {
+                throw new ParseException("Something went wrong whilst parsing");
+            }
+
         } catch (Exception e){
-            log.error("Something went wrong whilst parsing... fallback parsing applied.");
+            log.error(e.getMessage());
+            log.error("Fallback parsing applied");
             List<BuildLogNode> nodes = new ArrayList<>();
             String[] lines = buildLog.split("\n");
             List<LogLine> logLines = new ArrayList<>();
             for(int i = 0; i < lines.length; i++){
                 logLines.add(LogLine.builder().lineIndex(i).internalLineIndex(i).content(lines[i]).build());
             }
-            nodes.add(BuildLogNode.builder().nodeName("UNK").linesBefore(logLines).build());
+            nodes.add(BuildLogNode.builder().nodeName("UNKNOWN").linesBefore(logLines).build());
             return BuildLogTree.builder().nodes(nodes).build();
         }
     }
-
-    private LogLine mapToLogLine(String line, int idx){
-        return LogLine.builder().content(line).lineIndex(idx).build();
+    private List<LogLine> mapLinesToList(String[] line, int lineNumberStartIndex){
+        List<LogLine> list = new ArrayList<>();
+        for(int i = 0; i < line.length; i++){
+            list.add(LogLine.builder().content(line[i]).lineIndex(lineNumberStartIndex).build());
+            lineNumberStartIndex++;
+        }
+        return list;
     }
+
+
+    private int getIndexOfLastMavenLine(String[] lines){
+        for(int i = lines.length -1 ; i >= 0 ; i--){
+           if(lines[i].matches("(\\[INFO\\]\\s*-*)")){
+               return i;
+           }
+        }
+        return -1;
+    }
+
 }

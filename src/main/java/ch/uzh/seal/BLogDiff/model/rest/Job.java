@@ -44,4 +44,8 @@ public class Job {
             return -1;
         }
     }
+
+    @Getter
+    @Setter
+    private boolean parsedSuccessfully;
 }

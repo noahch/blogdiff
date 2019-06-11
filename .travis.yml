@@ -1,3 +1,13 @@
 language: java
+services:
+  - 'docker'
 before_install:
   - chmod +x mvnw
+script:
+  - docker build -t blogdiff .
+
+after_success:
+  - if [[ "$TRAVIS_BRANCH" == "master" ]]; then
+    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
+    docker push blogdiff;
+    fi

@@ -59,8 +59,11 @@ public class PreprocessorTravisCI implements Preprocessor{
     }
 
     private String filterTravisTimeTags(String line, String replacement) {
-        if (line.contains("travis_time:")) {
-            return "travis_time: " + replacement;
+        if (line.contains("travis_time:end:")) {
+            return "travis_time:end: " + replacement;
+        }
+        if (line.contains("travis_time:start:")) {
+            return "travis_time:start: " + replacement;
         }
         return line;
     }

@@ -9,8 +9,12 @@ import java.util.List;
 public class TravisParser implements Parser {
 
     @Override
-    public BuildLogNode parse(LogLine[] input) {
-       return BuildLogNode.builder().linesBefore(subArrayToList(input, 0, input.length)).nodeName("Travis").build();
+    public BuildLogNode parse(LogLine[] linesBefore, LogLine[] linesAfter) {
+       return BuildLogNode.builder()
+               .linesBefore(subArrayToList(linesBefore, 0, linesBefore.length))
+               .linesAfter(subArrayToList(linesAfter, 0, linesAfter.length))
+               .nodeName("Travis")
+               .build();
     }
 
     private List<LogLine> subArrayToList(LogLine[] lines, int start,  int end){

@@ -15,4 +15,8 @@ public class DifferencingResult {
     private BuildLogTree treeBefore;
     private BuildLogTree treeAfter;
     private EditTree editTree;
+    private long additions;
+    private long deletions;
+    private long moves;
+    private long updates;
 }

@@ -15,6 +15,9 @@ public class NodeLevelMapper implements Mapper {
 
     @Override
     public EditTree map(BuildLogTree buildLogTree1, BuildLogTree buildLogTree2, Differencer differencer) {
+        if(buildLogTree1 == null){
+            buildLogTree1 = BuildLogTree.builder().nodes(new ArrayList<>()).build();
+        }
         List<NodeAction> nodeActions = getNodeAction(buildLogTree1.getNodes(), buildLogTree2.getNodes());
         return EditTree.builder()
                 .nodeActions(nodeActions)
@@ -52,26 +55,31 @@ public class NodeLevelMapper implements Mapper {
     public EditAction mapNode(BuildLogNode node1, BuildLogNode node2, Differencer differencer){
         if(node1 == null){
             node1 = BuildLogNode.builder()
-                    .linesBefore(new ArrayList<LogLine>())
-                    .linesAfter(new ArrayList<LogLine>())
-                    .logNodes(new ArrayList<BuildLogNode>())
+                    .linesBefore(new ArrayList<>())
+                    .linesAfter(new ArrayList<>())
+                    .logNodes(new ArrayList<>())
                     .nodeName("")
                     .build();
         }
         if(node2 == null){
             node2 = BuildLogNode.builder()
-                    .linesBefore(new ArrayList<LogLine>())
-                    .linesAfter(new ArrayList<LogLine>())
-                    .logNodes(new ArrayList<BuildLogNode>())
+                    .linesBefore(new ArrayList<>())
+                    .linesAfter(new ArrayList<>())
+                    .logNodes(new ArrayList<>())
                     .nodeName("")
                     .build();
         }
+        String nodename = node1.getNodeName();
+        if(nodename.equals("")){
+            nodename = node2.getNodeName();
+        }
+
 
         if((node1.getLogNodes() != null && node1.getLogNodes().size() > 0) ||
                 (node2.getLogNodes() != null && node2.getLogNodes().size() > 0)) {
             List<NodeAction> nodeActions = getNodeAction(node1.getLogNodes(), node2.getLogNodes());
             return EditAction.builder()
-                    .nodeName(node1.getNodeName())
+                    .nodeName(nodename)
                     .linesBeforeActions(differencer.diffLogLines(node1.getLinesBefore(), node2.getLinesBefore()))
                     .linesAfterActions(differencer.diffLogLines(node1.getLinesAfter(), node2.getLinesAfter()))
                     .nodeActions(nodeActions)
@@ -79,7 +87,7 @@ public class NodeLevelMapper implements Mapper {
                     .build();
         }else{
             return EditAction.builder()
-                    .nodeName(node1.getNodeName())
+                    .nodeName(nodename)
                     .linesBeforeActions(differencer.diffLogLines(node1.getLinesBefore(), node2.getLinesBefore()))
                     .linesAfterActions(differencer.diffLogLines(node1.getLinesAfter(), node2.getLinesAfter()))
                     .nodeActions(new ArrayList<>())

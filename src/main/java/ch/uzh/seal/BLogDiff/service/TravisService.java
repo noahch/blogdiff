@@ -74,8 +74,13 @@ public class TravisService {
 
     }
 
+    public boolean checkRepoExists(String repoSlug){
+        return travisRestClient.checkRepoExists(repoSlug);
+
+    }
+
     @Cacheable("buildLogTree")
-    public BuildLogTree getBuildLogTree(String jobId) throws PreviousJobNotFoundException{
+    public BuildLogTree getBuildLogTree(String jobId) {
         String log = getLog(jobId).getContent();
         String filteredLog = preprocessorHandler.preprocessLog(log);
         BuildLogTree tree = travisMavenParsingHandler.parse(filteredLog);
@@ -91,13 +96,8 @@ public class TravisService {
     @Async
     public void cacheJobs(List<Job> jobs) {
         for (Job j : jobs){
-            try {
                 log.info("caching BuildLogTree of "+ j.getId());
                 getBuildLogTree(String.valueOf(j.getId()));
-            }catch (PreviousJobNotFoundException e){
-                log.error(e.getMessage());
-            }
-
         }
     }
 

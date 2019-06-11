@@ -1,9 +1,6 @@
 package ch.uzh.seal.BLogDiff.client;
 
-import ch.uzh.seal.BLogDiff.model.rest.Build;
-import ch.uzh.seal.BLogDiff.model.rest.Builds;
-import ch.uzh.seal.BLogDiff.model.rest.Job;
-import ch.uzh.seal.BLogDiff.model.rest.Log;
+import ch.uzh.seal.BLogDiff.model.rest.*;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +27,22 @@ public class TravisRestClient extends AbstractUnirestClient {
         setupUnirest();
     }
 
+
+    /**
+     * Get information of all builds in the repository form the travis api
+     * @param repositoryIdentifier repositoryId oder repositorySlug
+     * @return Build
+     */
+    public boolean checkRepoExists(String repositoryIdentifier){
+        // TODO: handle paging if there are more than 20 builds
+        HttpResponse<Repository> response = Unirest.get(travisApiBaseUrl + "repo/" + encodeRepositoryIdentifier(repositoryIdentifier)).asObject(Repository.class);
+        Repository repo = response.getBody();
+        if(repo.getId() != null){
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Get build information form the travis api
      * @param buildIdentifier buildId
@@ -54,6 +67,7 @@ public class TravisRestClient extends AbstractUnirestClient {
         log.info("Builds retrieved: " + builds.toString());
         return builds;
     }
+
 
 
     /**
