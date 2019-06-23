@@ -1,21 +1,25 @@
 package ch.uzh.seal.BLogDiff.controller;
 
-import ch.uzh.seal.BLogDiff.client.TravisRestClient;
+import ch.uzh.seal.BLogDiff.differencing.ASTDifferencer;
 import ch.uzh.seal.BLogDiff.differencing.LineDifferencer;
 import ch.uzh.seal.BLogDiff.exception.PreviousJobNotFoundException;
 import ch.uzh.seal.BLogDiff.mapping.NodeLevelMapper;
 import ch.uzh.seal.BLogDiff.model.DifferencingResult;
+import ch.uzh.seal.BLogDiff.model.Message;
+import ch.uzh.seal.BLogDiff.model.MessageType;
 import ch.uzh.seal.BLogDiff.model.parsing.BuildLogTree;
 import ch.uzh.seal.BLogDiff.model.parsing.EditTree;
 import ch.uzh.seal.BLogDiff.model.rest.Job;
 import ch.uzh.seal.BLogDiff.model.survey.SurveyResult;
 import ch.uzh.seal.BLogDiff.repository.SurveyRepository;
+import ch.uzh.seal.BLogDiff.service.GitService;
 import ch.uzh.seal.BLogDiff.service.TravisService;
 import ch.uzh.seal.BLogDiff.utils.EditTreeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -30,16 +34,27 @@ public class DifferencingController {
     private TravisService travisService;
 
     @Autowired
+    private GitService gitService;
+
+    @Autowired
     private SurveyRepository surveyRepository;
+
+
 
     @RequestMapping("/differencing/{jobId}")
     public DifferencingResult differencingSingle(@PathVariable("jobId") String id) {
         try{
+            List<Message> messages = new ArrayList<>();
+
+            if(!checkMavenProject(id, messages)){
+                return DifferencingResult.builder().messageList(messages).build();
+            }
+
             String id2 = String.valueOf(travisService.getPreviousSuccessfulJog(id).getId());
             BuildLogTree tree1 = travisService.getBuildLogTree(id2);
             BuildLogTree tree2 = travisService.getBuildLogTree(id);
 
-            EditTree editTree = nodeLevelMapper.map(tree1, tree2, new LineDifferencer());
+            EditTree editTree = nodeLevelMapper.map(tree1, tree2, new ASTDifferencer());
 
             return DifferencingResult.builder()
                     .jobIdBefore(id2)
@@ -51,9 +66,12 @@ public class DifferencingController {
                     .deletions(EditTreeUtils.getDeletions(editTree))
                     .moves(EditTreeUtils.getMoves(editTree))
                     .updates(EditTreeUtils.getUpdates(editTree))
+                    .messageList(messages)
                     .build();
         }catch (PreviousJobNotFoundException e){
-
+            List<Message> messages = new ArrayList<>();
+            checkMavenProject(id, messages);
+            messages.add(Message.builder().message("Previous Job could not be selected automatically").messageType(MessageType.INFO).build());
             BuildLogTree tree2 = travisService.getBuildLogTree(id);
             EditTree editTree = nodeLevelMapper.map(null, tree2, new LineDifferencer());
             return DifferencingResult.builder()
@@ -65,13 +83,19 @@ public class DifferencingController {
                     .deletions(EditTreeUtils.getDeletions(editTree))
                     .moves(EditTreeUtils.getMoves(editTree))
                     .updates(EditTreeUtils.getUpdates(editTree))
+                    .messageList(messages)
                     .build();
         }
         catch (Exception e){
-            //TODO: error handling
-            log.error(e.getMessage());
+            List<Message> messages = new ArrayList<>();
+            messages.add(Message.builder().message(e.getMessage()).messageType(MessageType.ERROR).build());
+            return DifferencingResult.builder().messageList(messages).build();
         }
-       return null;
+        catch (Error e){
+            List<Message> messages = new ArrayList<>();
+            messages.add(Message.builder().message(e.getMessage()).messageType(MessageType.ERROR).build());
+            return DifferencingResult.builder().messageList(messages).build();
+        }
     }
 
     @RequestMapping("/differencing/{jobId1}/{jobId2}")
@@ -130,6 +154,14 @@ public class DifferencingController {
     public void survey(@RequestBody SurveyResult survey)  {
         this.surveyRepository.save(survey);
         log.info(survey.toString());
+    }
+
+    private boolean checkMavenProject(String jobId, final List<Message> messages){
+        boolean mavenProject = this.gitService.checkIfMavenProject(travisService.getRepoSlugByJobId(jobId));
+        if(!mavenProject){
+            messages.add(Message.builder().message("The project you have selected is not a Maven/Java Project").messageType(MessageType.ERROR).build());
+        }
+        return mavenProject;
     }
 
 

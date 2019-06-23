@@ -47,6 +47,9 @@ public class TravisMavenParsingHandler implements ParsingHandler {
                 if(splitIdx != -1){
                     mavenLines = mapLinesToList(ArrayUtils.subarray(splitArray2, 0, splitIdx+1), travisLinesBefore.size() + 1);
                     travisLinesAfter = mapLinesToList(ArrayUtils.subarray(splitArray2, splitIdx + 1, splitArray2.length), travisLinesBefore.size() + mavenLines.size() + 1);
+                } else {
+                    // No maven lines found
+                    throw new ParseException("Something went wrong whilst parsing");
                 }
 
             } else { // Travis Maven Split not successful

@@ -74,6 +74,11 @@ public class TravisService {
 
     }
 
+    public String getRepoSlugByJobId(String jobId){
+        Job job = travisRestClient.getJob(jobId);
+        return job.getRepository().getSlug();
+    }
+
     public boolean checkRepoExists(String repoSlug){
         return travisRestClient.checkRepoExists(repoSlug);
 
