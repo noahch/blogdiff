@@ -20,31 +20,65 @@ public class SurveyResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String experience;
-
-    @JsonProperty("number_of_people")
-    private String numberOfPeople;
+    private double experience;
 
     @JsonProperty("failing_builds")
-    private String failingBuilds;
-
-    @JsonProperty("how_long")
-    private String howLong;
+    private double failingBuilds;
 
     private int useful;
-
-    @JsonProperty("integrate_workflow")
-    private int integrateWorkflow;
 
     @JsonProperty("find_faster")
     private int findFaster;
 
     private int accuracy;
 
-    private String suggestions;
-
     @JsonProperty("use_again")
     private int useAgain;
+
+    private double age;
+
+    private String gender;
+
+    private String education;
+
+    private String position;
+
+    @JsonProperty("buildlogs_seen")
+    private String buildlogsSeen;
+
+    @JsonProperty("month_on_project")
+    private int monthOnProject;
+
+    @JsonProperty("people_on_project")
+    private int peopleOnProject;
+
+    private String role;
+
+    @JsonProperty("time_to_find_failure")
+    private double timeToFindFailure;
+
+    @JsonProperty("easy_to_use")
+    private int easyToUse;
+
+    @JsonProperty("filtering_noise")
+    private int filteringNoise;
+
+    private int integration;
+
+    private int advantage;
+
+    private int recommend;
+
+    private String suggestion;
+
+    private String comment;
+
+    @JsonProperty("contact_again")
+    private String contactAgain;
+
+    private String email;
+
+
 
 
 }

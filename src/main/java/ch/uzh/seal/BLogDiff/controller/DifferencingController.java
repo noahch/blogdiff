@@ -36,8 +36,6 @@ public class DifferencingController {
     @Autowired
     private GitService gitService;
 
-    @Autowired
-    private SurveyRepository surveyRepository;
 
 
 
@@ -54,7 +52,7 @@ public class DifferencingController {
             BuildLogTree tree1 = travisService.getBuildLogTree(id2);
             BuildLogTree tree2 = travisService.getBuildLogTree(id);
 
-            EditTree editTree = nodeLevelMapper.map(tree1, tree2, new ASTDifferencer());
+            EditTree editTree = nodeLevelMapper.map(tree1, tree2, new LineDifferencer());
 
             return DifferencingResult.builder()
                     .jobIdBefore(id2)
@@ -150,11 +148,6 @@ public class DifferencingController {
         return null;
     }
 
-    @PostMapping("/survey")
-    public void survey(@RequestBody SurveyResult survey)  {
-        this.surveyRepository.save(survey);
-        log.info(survey.toString());
-    }
 
     private boolean checkMavenProject(String jobId, final List<Message> messages){
         boolean mavenProject = this.gitService.checkIfMavenProject(travisService.getRepoSlugByJobId(jobId));
