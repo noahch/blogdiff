@@ -124,9 +124,13 @@ public class DifferencingController {
     @RequestMapping("/repo/{user}/{repository}")
     public List<Job> getJobsForRepo(@PathVariable("user") String user, @PathVariable("repository") String repository) {
         if(travisService.checkRepoExists(user + "/" + repository)){
-            // TODO: Complete
+            String jobId = travisService.getFirstJobIdByRepo(user + "/" + repository);
+            if (jobId != null){
+                List<Job> jobs = travisService.getJobList(jobId);
+                travisService.cacheJobs(jobs);
+                return jobs;
+            }
         }
-
         return null;
     }
 
@@ -136,18 +140,6 @@ public class DifferencingController {
          travisService.cacheJobs(jobs);
          return jobs;
     }
-
-    @RequestMapping("/testjobs/{jobId}")
-    public BuildLogTree closeJobsx(@PathVariable("jobId") String id)  {
-        try{
-            BuildLogTree bt = travisService.getBuildLogTree(id);
-            return bt;
-        }catch (Exception e){
-
-        }
-        return null;
-    }
-
 
     private boolean checkMavenProject(String jobId, final List<Message> messages){
         boolean mavenProject = this.gitService.checkIfMavenProject(travisService.getRepoSlugByJobId(jobId));

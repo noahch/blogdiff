@@ -84,6 +84,16 @@ public class TravisService {
 
     }
 
+    public String getFirstJobIdByRepo(String repoSlug) {
+        List<Build> builds =  this.travisRestClient.getBuilds(repoSlug).getBuilds();
+        if(builds.size() > 0) {
+            if(builds.get(0).getJobs().size() > 0){
+                return builds.get(0).getJobs().get(0).getId().toString();
+            }
+        }
+        return null;
+    }
+
     @Cacheable("buildLogTree")
     public BuildLogTree getBuildLogTree(String jobId) {
         String log = getLog(jobId).getContent();
