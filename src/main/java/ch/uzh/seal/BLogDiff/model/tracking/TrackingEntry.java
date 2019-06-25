@@ -38,6 +38,8 @@ public class TrackingEntry {
     private boolean moves;
     private boolean highlight;
     private boolean wrap;
+    private boolean differenceOnly;
+    private boolean symmetricNodes;
     private boolean hideNodes;
 
 

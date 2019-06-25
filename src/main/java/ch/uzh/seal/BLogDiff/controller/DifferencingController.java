@@ -69,7 +69,7 @@ public class DifferencingController {
         }catch (PreviousJobNotFoundException e){
             List<Message> messages = new ArrayList<>();
             checkMavenProject(id, messages);
-            messages.add(Message.builder().message("Previous Job could not be selected automatically").messageType(MessageType.INFO).build());
+            messages.add(Message.builder().message("Previous Job could not be selected automatically").messageType(MessageType.WARN).build());
             BuildLogTree tree2 = travisService.getBuildLogTree(id);
             EditTree editTree = nodeLevelMapper.map(null, tree2, new LineDifferencer());
             return DifferencingResult.builder()
@@ -97,7 +97,7 @@ public class DifferencingController {
     }
 
     @RequestMapping("/differencing/{jobId1}/{jobId2}")
-    public DifferencingResult differencingDouble(@PathVariable("jobId1") String id1, @PathVariable("jobId2") String id2) {
+    public DifferencingResult differencingMulti(@PathVariable("jobId1") String id1, @PathVariable("jobId2") String id2) {
         try{
             BuildLogTree tree1 = travisService.getBuildLogTree(id1);
             BuildLogTree tree2 = travisService.getBuildLogTree(id2);
@@ -119,6 +119,19 @@ public class DifferencingController {
             log.error(e.getMessage());
         }
         return null;
+    }
+
+    @RequestMapping("/differencing/manual/{jobId1}/{jobId2}")
+    public DifferencingResult manualDifferencingMulti(@PathVariable("jobId1") String id1, @PathVariable("jobId2") String id2) {
+        List<Message> messages = new ArrayList<>();
+        String repo1 = travisService.getRepoSlugByJobId(id1);
+        String repo2 = travisService.getRepoSlugByJobId(id2);
+        if(repo1 == null || !repo1.equals(repo2)){
+            messages.add(Message.builder().message("Job IDs are not valid or not from the same repository").messageType(MessageType.ERROR).build());
+            return DifferencingResult.builder().messageList(messages).build();
+        }
+        return differencingMulti(id1, id2);
+
     }
 
     @RequestMapping("/repo/{user}/{repository}")

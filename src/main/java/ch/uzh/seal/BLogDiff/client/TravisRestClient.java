@@ -90,7 +90,7 @@ public class TravisRestClient extends AbstractUnirestClient {
     public Job getJob(String jobIdentifier){
         HttpResponse<Job> response = Unirest.get(travisApiBaseUrl + "job/" + jobIdentifier).asObject(Job.class);
         Job job = response.getBody();
-        log.info("job retrieved:" + job.getId());
+        log.info("job retrieved:" + job);
         return job;
     }
 
