@@ -13,35 +13,18 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Table(name = "tracking")
-public class TrackingEntry {
-
+@Table(name = "bugs")
+public class BugReport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private Date timestamp;
-
     private String userId;
-
     private String repository;
-
     private String jobId1;
-
     private String jobId2;
-
-    private int timeSpent;
-
-    private boolean additions;
-    private boolean deletions;
-    private boolean updates;
-    private boolean moves;
-    private boolean highlight;
-    private boolean wrap;
-    private boolean differenceOnly;
-    private boolean symmetricNodes;
-    private boolean hideNodes;
-    private boolean heartbeat;
-
-
+    private Long lineNr1;
+    private Long lineNr2;
+    private Date timestamp;
+    @Column(length = 2048)
+    private String bug;
 }

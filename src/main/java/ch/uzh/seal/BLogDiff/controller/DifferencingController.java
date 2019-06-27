@@ -52,11 +52,13 @@ public class DifferencingController {
             BuildLogTree tree1 = travisService.getBuildLogTree(id2);
             BuildLogTree tree2 = travisService.getBuildLogTree(id);
 
+            String repoSlug = travisService.getRepoSlugByJobId(id2);
             EditTree editTree = nodeLevelMapper.map(tree1, tree2, new LineDifferencer());
 
             return DifferencingResult.builder()
                     .jobIdBefore(id2)
                     .jobIdAfter(id)
+                    .repoSlug(repoSlug)
                     .treeBefore(tree1)
                     .treeAfter(tree2)
                     .editTree(editTree)
@@ -71,9 +73,11 @@ public class DifferencingController {
             checkMavenProject(id, messages);
             messages.add(Message.builder().message("Previous Job could not be selected automatically").messageType(MessageType.WARN).build());
             BuildLogTree tree2 = travisService.getBuildLogTree(id);
+            String repoSlug = travisService.getRepoSlugByJobId(id);
             EditTree editTree = nodeLevelMapper.map(null, tree2, new LineDifferencer());
             return DifferencingResult.builder()
                     .jobIdAfter(id)
+                    .repoSlug(repoSlug)
                     .treeBefore(null)
                     .treeAfter(tree2)
                     .editTree(editTree)
@@ -101,11 +105,12 @@ public class DifferencingController {
         try{
             BuildLogTree tree1 = travisService.getBuildLogTree(id1);
             BuildLogTree tree2 = travisService.getBuildLogTree(id2);
-
+            String repoSlug = travisService.getRepoSlugByJobId(id2);
             EditTree editTree = nodeLevelMapper.map(tree1, tree2, new LineDifferencer());
             return DifferencingResult.builder()
                     .jobIdBefore(id1)
                     .jobIdAfter(id2)
+                    .repoSlug(repoSlug)
                     .treeBefore(tree1)
                     .treeAfter(tree2)
                     .editTree(editTree)

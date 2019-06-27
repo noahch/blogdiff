@@ -1,5 +1,6 @@
 package ch.uzh.seal.BLogDiff.controller;
 
+import ch.uzh.seal.BLogDiff.model.tracking.BugReport;
 import ch.uzh.seal.BLogDiff.model.tracking.ContactEmail;
 import ch.uzh.seal.BLogDiff.model.tracking.TrackingEntry;
 import ch.uzh.seal.BLogDiff.service.TrackingService;
@@ -22,13 +23,15 @@ public class TrackingController {
     private TrackingService trackingService;
 
 
-    @Autowired
-    private TravisService travisService;
-
     @PostMapping("/tracking")
     public void track(@RequestBody TrackingEntry trackingEntry)  {
         trackingEntry.setTimestamp(new Date());
-        trackingEntry.setRepository(travisService.getRepoSlugByJobId(trackingEntry.getLogId2()));
         this.trackingService.saveTracking(trackingEntry);
+    }
+
+    @PostMapping("/bug")
+    public void bug(@RequestBody BugReport bugReport)  {
+        bugReport.setTimestamp(new Date());
+        this.trackingService.saveBug(bugReport);
     }
 }
