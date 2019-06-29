@@ -8,10 +8,7 @@ import ch.uzh.seal.BLogDiff.repository.MiniSurveyRepository;
 import ch.uzh.seal.BLogDiff.repository.SurveyRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
@@ -30,8 +27,9 @@ public class SurveyController {
     @Autowired
     private ContactEmailRepository contactEmailRepository;
 
-    @PostMapping("/survey")
-    public void survey(@RequestBody SurveyResult survey)  {
+    @PostMapping("/survey/{source}")
+    public void survey(@RequestBody SurveyResult survey, @PathVariable("source") int source)  {
+        survey.setSource(source);
         this.surveyRepository.save(survey);
         log.info(survey.toString());
     }

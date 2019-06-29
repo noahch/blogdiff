@@ -43,8 +43,8 @@ public class SurveyResult {
 
     private String position;
 
-    @JsonProperty("buildlogs_seen")
-    private String buildlogsSeen;
+    @JsonProperty("build_log_experience")
+    private String buildLogExperience;
 
     @JsonProperty("month_on_project")
     private int monthOnProject;
@@ -78,7 +78,18 @@ public class SurveyResult {
 
     private String email;
 
+    private int source;
 
+    @JsonProperty("primary_language")
+    private String primaryLanguage;
 
+    @JsonProperty("build_tool_use")
+    private String buildToolUse;
+
+    @JsonProperty("ci_use")
+    private String ciUse;
+
+    @JsonProperty("usually_process")
+    private String usuallyProcess;
 
 }
