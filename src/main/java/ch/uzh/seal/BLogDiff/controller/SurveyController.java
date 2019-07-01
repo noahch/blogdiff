@@ -30,6 +30,7 @@ public class SurveyController {
     @PostMapping("/survey/{source}")
     public void survey(@RequestBody SurveyResult survey, @PathVariable("source") int source)  {
         survey.setSource(source);
+        survey.setTimestamp(new Date());
         this.surveyRepository.save(survey);
         log.info(survey.toString());
     }
