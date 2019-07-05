@@ -20,7 +20,7 @@ public class PreprocessorHandler {
         Log bLog = new Log();
         bLog.setContent(buildLog);
         preprocessorConfig.getPreprocessors().forEach(s ->{
-            log.info(s);
+//            log.info(s);
             try {
                 Class p = Class.forName(s);
                 Object o = p.getDeclaredConstructor().newInstance();

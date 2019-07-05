@@ -20,7 +20,7 @@ public class TravisMavenParsingHandler implements ParsingHandler {
     TravisParser travisParser;
 
     @Override
-    public BuildLogTree parse(String buildLog) {
+    public BuildLogTree parse(String buildLog, boolean isFiltered) {
         try {
             // Spilt the build log into travis and maven parts
             String[] splitArray = buildLog.split("(?<=travis_fold:end:git.checkout)");
@@ -41,7 +41,7 @@ public class TravisMavenParsingHandler implements ParsingHandler {
                 String restLines = splitArray[1];
 
                 String[] splitArray2 = restLines.split("\n");
-                int splitIdx = getIndexOfLastMavenLine(splitArray2);
+                int splitIdx = getIndexOfLastMavenLine(splitArray2, isFiltered);
 
                 // Travis lines after maven found
                 if(splitIdx != -1){
@@ -96,9 +96,11 @@ public class TravisMavenParsingHandler implements ParsingHandler {
     }
 
 
-    private int getIndexOfLastMavenLine(String[] lines){
+    private int getIndexOfLastMavenLine(String[] lines, boolean isFiltered){
         for(int i = lines.length -1 ; i >= 0 ; i--){
-           if(lines[i].matches("(\\[INFO\\]\\s*-*)")){
+           if(isFiltered && lines[i].matches("(\\[INFO\\]\\s*-*)")){
+               return i;
+           } else if(!isFiltered && lines[i].matches("(.*\\[.*INFO.*\\].*\\s*-*)")){
                return i;
            }
         }

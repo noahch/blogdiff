@@ -49,8 +49,8 @@ public class DifferencingController {
             }
 
             String id2 = String.valueOf(travisService.getPreviousSuccessfulJog(id).getId());
-            BuildLogTree tree1 = travisService.getBuildLogTree(id2);
-            BuildLogTree tree2 = travisService.getBuildLogTree(id);
+            BuildLogTree tree1 = travisService.getBuildLogTree(id2,true);
+            BuildLogTree tree2 = travisService.getBuildLogTree(id,true);
 
             String repoSlug = travisService.getRepoSlugByJobId(id2);
             EditTree editTree = nodeLevelMapper.map(tree1, tree2, new LineDifferencer());
@@ -72,7 +72,7 @@ public class DifferencingController {
             List<Message> messages = new ArrayList<>();
             checkMavenProject(id, messages);
             messages.add(Message.builder().message("Previous Job could not be selected automatically").messageType(MessageType.WARN).build());
-            BuildLogTree tree2 = travisService.getBuildLogTree(id);
+            BuildLogTree tree2 = travisService.getBuildLogTree(id,true);
             String repoSlug = travisService.getRepoSlugByJobId(id);
             EditTree editTree = nodeLevelMapper.map(null, tree2, new LineDifferencer());
             return DifferencingResult.builder()
@@ -103,8 +103,8 @@ public class DifferencingController {
     @RequestMapping("/differencing/{jobId1}/{jobId2}")
     public DifferencingResult differencingMulti(@PathVariable("jobId1") String id1, @PathVariable("jobId2") String id2) {
         try{
-            BuildLogTree tree1 = travisService.getBuildLogTree(id1);
-            BuildLogTree tree2 = travisService.getBuildLogTree(id2);
+            BuildLogTree tree1 = travisService.getBuildLogTree(id1,true);
+            BuildLogTree tree2 = travisService.getBuildLogTree(id2,true);
             String repoSlug = travisService.getRepoSlugByJobId(id2);
             EditTree editTree = nodeLevelMapper.map(tree1, tree2, new LineDifferencer());
             return DifferencingResult.builder()

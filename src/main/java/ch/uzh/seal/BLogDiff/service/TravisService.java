@@ -98,10 +98,15 @@ public class TravisService {
     }
 
     @Cacheable("buildLogTree")
-    public BuildLogTree getBuildLogTree(String jobId) {
+    public BuildLogTree getBuildLogTree(String jobId, boolean preprocess) {
         String log = getLog(jobId).getContent();
-        String filteredLog = preprocessorHandler.preprocessLog(log);
-        BuildLogTree tree = travisMavenParsingHandler.parse(filteredLog);
+        String filteredLog;
+        if(preprocess){
+            filteredLog = preprocessorHandler.preprocessLog(log);
+        }else{
+            filteredLog = log;
+        }
+        BuildLogTree tree = travisMavenParsingHandler.parse(filteredLog, preprocess);
         return tree;
     }
 
@@ -115,7 +120,7 @@ public class TravisService {
     public void cacheJobs(List<Job> jobs) {
         for (Job j : jobs){
                 log.info("caching BuildLogTree of "+ j.getId());
-                getBuildLogTree(String.valueOf(j.getId()));
+                getBuildLogTree(String.valueOf(j.getId()), true);
         }
     }
 

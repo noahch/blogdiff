@@ -5,6 +5,7 @@ import ch.uzh.seal.BLogDiff.model.parsing.LineAction;
 import ch.uzh.seal.BLogDiff.model.parsing.LineActionType;
 import ch.uzh.seal.BLogDiff.model.parsing.LogLine;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,14 +29,15 @@ public class LineDifferencer implements Differencer {
         outer: while(i < lines1.length){
             while(j < lines2.length) {
                 if(lines1[i].equals(lines2[j])){
-                    log.info(String.format("Index %d %s and %d %s matched", i,lines1[i] ,j ,lines2[j]));
+//                    log.info(String.format("Index %d %s and %d %s matched", i,lines1[i] ,j ,lines2[j]));
                     i++;
                     j++;
                     continue outer;
                 }else{
                     // Check similarity --> Update
-                    if(similarity(lines1[i], lines2[j]) <= 0.15){
-                        log.info(String.format("Index %d %s and %d %s matched as update", i,lines1[i] ,j ,lines2[j]));
+
+                    if(s2(lines1[i], lines2[j]) <= 0.15){
+//                        log.info(String.format("Index %d %s and %d %s matched as update", i,lines1[i] ,j ,lines2[j]));
                         actions.add(LineAction.builder()
                                 .contentBefore(lines1[i])
                                 .contentAfter(lines2[j])
@@ -69,7 +71,7 @@ public class LineDifferencer implements Differencer {
 
 
                     if(!found2 && found1){
-                        log.info(String.format("DELETE %s", lines1[i]));
+//                        log.info(String.format("DELETE %s", lines1[i]));
                         actions.add(LineAction.builder()
                                 .contentBefore(lines1[i])
                                 .contentAfter("")
@@ -79,7 +81,7 @@ public class LineDifferencer implements Differencer {
                         i++;
                         continue outer;
                     }else if (found2 && !found1) {
-                        log.info(String.format("ADD %s", lines2[j]));
+//                        log.info(String.format("ADD %s", lines2[j]));
                         actions.add(LineAction.builder()
                                 .contentBefore("")
                                 .contentAfter(lines2[j])
@@ -89,8 +91,8 @@ public class LineDifferencer implements Differencer {
                         j++;
                         continue;
                     }else if (!found1 && !found2){
-                        log.info(String.format("xDELETE %s", lines1[i]));
-                        log.info(String.format("xADD %s", lines2[j]));
+//                        log.info(String.format("xDELETE %s", lines1[i]));
+//                        log.info(String.format("xADD %s", lines2[j]));
                         actions.add(LineAction.builder()
                                 .contentBefore(lines1[i])
                                 .contentAfter("")
@@ -118,7 +120,7 @@ public class LineDifferencer implements Differencer {
             }
         }
         while(j < lines2.length){
-            log.info("ADD");
+//            log.info("ADD");
             actions.add(LineAction.builder()
                     .contentBefore("")
                     .contentAfter(lines2[j])
@@ -128,7 +130,7 @@ public class LineDifferencer implements Differencer {
             j++;
         }
         while(i < lines1.length){
-            log.info("DELETE");
+//            log.info("DELETE");
             actions.add(LineAction.builder()
                     .contentBefore(lines1[i])
                     .contentAfter("")
@@ -192,6 +194,12 @@ public class LineDifferencer implements Differencer {
         return actions;
     }
 
+    static double s2(String x, String y) {
+
+        int d = StringUtils.getLevenshteinDistance(x, y);
+        return((double)d / ((x.length()+y.length())/2));
+
+    }
     static double similarity(String x, String y) {
         int[][] dp = new int[x.length() + 1][y.length() + 1];
 

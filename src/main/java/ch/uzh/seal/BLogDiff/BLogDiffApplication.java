@@ -1,5 +1,6 @@
 package ch.uzh.seal.BLogDiff;
 
+import ch.uzh.seal.BLogDiff.analysis.PreprocessingAnalysis;
 import ch.uzh.seal.BLogDiff.differencing.LineDifferencer;
 import ch.uzh.seal.BLogDiff.mapping.NodeLevelMapper;
 import ch.uzh.seal.BLogDiff.model.parsing.BuildLogNode;
@@ -22,8 +23,6 @@ import java.util.List;
 @EnableCaching
 @EnableScheduling
 public class BLogDiffApplication {
-
-
 
 	public static void main(String[] args) {
 
