@@ -36,11 +36,11 @@ public class TravisMavenParsingHandler implements ParsingHandler {
             // Travis Maven Split successful
             if(splitArray.length > 1){
 
-                travisLinesBefore = mapLinesToList(splitArray[0].split("\n"), 1);
+                travisLinesBefore = mapLinesToList(splitArray[0].split("(\\r?\\n)|\\r"), 1);
 
                 String restLines = splitArray[1];
 
-                String[] splitArray2 = restLines.split("\n");
+                String[] splitArray2 = restLines.split("(\\r?\\n)|\\r");
                 int splitIdx = getIndexOfLastMavenLine(splitArray2, isFiltered);
 
                 // Travis lines after maven found
@@ -53,7 +53,7 @@ public class TravisMavenParsingHandler implements ParsingHandler {
                 }
 
             } else { // Travis Maven Split not successful
-                travisLinesBefore = mapLinesToList(splitArray[0].split("\n"), 1);;
+                travisLinesBefore = mapLinesToList(splitArray[0].split("(\\r?\\n)|\\r"), 1);;
             }
 
             if(travisLinesBefore.size() > 0){
@@ -77,7 +77,7 @@ public class TravisMavenParsingHandler implements ParsingHandler {
             log.error(e.getMessage());
             log.error("Fallback parsing applied");
             List<BuildLogNode> nodes = new ArrayList<>();
-            String[] lines = buildLog.split("\n");
+            String[] lines = buildLog.split("(\\r?\\n)|\\r");
             List<LogLine> logLines = new ArrayList<>();
             for(int i = 0; i < lines.length; i++){
                 logLines.add(LogLine.builder().lineIndex(i).internalLineIndex(i).content(lines[i]).build());
