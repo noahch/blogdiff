@@ -55,14 +55,14 @@ public class ASTDifferencer implements Differencer {
     private Tree createTree(List<LogLine> lines) {
         Tree parent = new Tree(0, "Root");
         for (LogLine line : lines) {
-            Tree t = new Tree(1, line.getContent());
+            Tree t = new Tree(0, line.getContent());
             t.setHeight(0);
             t.setDepth(1);
             t.setSize(1);
             t.setPos(line.getInternalLineIndex());
             t.setLength(line.getContent().length());
             t.setHash(line.getContent().hashCode());
-            t.setId(line.getInternalLineIndex()-1);
+            t.setId(line.getInternalLineIndex());
             t.setParentAndUpdateChildren(parent);
         }
         parent.setHeight(1);
@@ -70,7 +70,9 @@ public class ASTDifferencer implements Differencer {
         parent.setSize(lines.size()+1);
         parent.setPos(0);
         parent.setLength(4);
+        parent.setId(0);
         parent.setHash("Root".hashCode());
+        parent.setParent(null);
         return parent;
     }
 
