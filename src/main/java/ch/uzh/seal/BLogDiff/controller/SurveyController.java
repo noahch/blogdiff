@@ -27,9 +27,10 @@ public class SurveyController {
     @Autowired
     private ContactEmailRepository contactEmailRepository;
 
-    @PostMapping("/survey/{source}")
-    public void survey(@RequestBody SurveyResult survey, @PathVariable("source") int source)  {
+    @PostMapping("/survey/{source}/{usedTool}")
+    public void survey(@RequestBody SurveyResult survey, @PathVariable("source") int source,@PathVariable("usedTool") boolean usedTool)  {
         survey.setSource(source);
+        survey.setUsedTool(usedTool);
         survey.setTimestamp(new Date());
         this.surveyRepository.save(survey);
         log.info(survey.toString());

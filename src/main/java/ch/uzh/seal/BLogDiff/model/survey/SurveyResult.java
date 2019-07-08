@@ -95,4 +95,8 @@ public class SurveyResult {
     @JsonProperty("usually_process")
     private String usuallyProcess;
 
+    private String raffle;
+
+    private boolean usedTool;
+
 }
