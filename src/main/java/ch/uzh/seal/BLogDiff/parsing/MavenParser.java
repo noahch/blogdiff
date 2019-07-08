@@ -13,11 +13,10 @@ import java.util.regex.Pattern;
 @Slf4j
 public class MavenParser implements Parser {
 
-    private List<String> moduleNames;
 
     @Override
     public BuildLogNode parse(LogLine[] linesBefore, LogLine[] linesAfter) {
-        moduleNames = new ArrayList<>();
+        List<String> moduleNames = new ArrayList<>();
         int firstModule = getIndexOfNextModule(linesBefore,0);
         // No module found
         if(firstModule == -1){
@@ -29,12 +28,12 @@ public class MavenParser implements Parser {
         }
         return BuildLogNode.builder()
                 .linesBefore(subArrayToList(linesBefore, 0, firstModule))
-                .logNodes(mapModules(linesBefore, firstModule, linesBefore.length))
+                .logNodes(mapModules(linesBefore, firstModule, linesBefore.length, moduleNames))
                 .nodeName("Maven")
                 .build();
     }
 
-    private List<BuildLogNode> mapModules(LogLine[] lines, int start, int end ) {
+    private List<BuildLogNode> mapModules(LogLine[] lines, int start, int end, List<String> moduleNames) {
         int processingIndex = start;
         List<BuildLogNode> modules = new ArrayList<>();
         while (getIndexOfNextModule(lines, processingIndex) != -1) {
@@ -43,22 +42,31 @@ public class MavenParser implements Parser {
             if (nextIndex == -1){
                 nextIndex = lines.length;
             }
-            modules.add(mapModule(lines, processingIndex, nextIndex));
+            modules.add(mapModule(lines, processingIndex, nextIndex, moduleNames));
             processingIndex++;
         }
         return modules;
     }
 
 
-    private BuildLogNode mapModule(LogLine[] lines, int start, int end) {
-        return BuildLogNode.builder()
-                .linesBefore(subArrayToList(lines, start, getIndexOfNextGoal(lines,start, end)))
-                .logNodes(mapGoals(lines, start, end))
-                .nodeName(extractModuleName(lines[start+1].getContent()))
-                .build();
+    private BuildLogNode mapModule(LogLine[] lines, int start, int end, List<String> moduleNames) {
+        int nextGoal =  getIndexOfNextGoal(lines,start, end);
+        if (nextGoal == -1){
+            return BuildLogNode.builder()
+                    .linesBefore(subArrayToList(lines, start, end))
+                    .logNodes(new ArrayList<>())
+                    .nodeName(extractModuleName(lines[start+1].getContent(), moduleNames))
+                    .build();
+        }else {
+            return BuildLogNode.builder()
+                    .linesBefore(subArrayToList(lines, start, nextGoal))
+                    .logNodes(mapGoals(lines, start, end))
+                    .nodeName(extractModuleName(lines[start+1].getContent(), moduleNames))
+                    .build();
+        }
     }
 
-    private String extractModuleName(String logLine){
+    private String extractModuleName(String logLine, List<String> moduleNames){
         Pattern pattern = Pattern.compile("(Building ((\\w|\\d|\\.|\\-)*(\\s|\\.|\\-)*)*)");
         Matcher matcher = pattern.matcher(logLine);
         if (matcher.find())
