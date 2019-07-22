@@ -20,6 +20,7 @@ public class PreprocessorMaven implements Preprocessor {
             s = filterProgress(s, prevLine, replacement);
             s = filterTime(s, replacement);
             s = filterTimestamp(s, replacement);
+            s = filterDate(s, replacement);
             prevLine = lines[i];
             if (!s.equals("")){
                 s  += "\n";
@@ -53,7 +54,19 @@ public class PreprocessorMaven implements Preprocessor {
         return line.replaceAll("([0-9]*.?[0-9]+.?(ms|s|sec|min)(\\s|\\W|$))", replacement);
     }
     private String filterTimestamp(String line, String replacement) {
-        return line.replaceAll("((\\d{4}(-\\d{2}){2}T?)?(\\d{2}:)?\\d{2}:\\d{2}Z?((\\.\\d{1,3})|(\\+\\d{2}:\\d{2}))?(\\s|\\W|$))", replacement);
+        return line.replaceAll("((\\d{4}(-\\d{2}){2}T?)?(\\d{2}:)?\\d{2}:\\d{2}Z?((\\.\\d{1,3})|(\\+\\d{2}:\\d{2}))?([\\.,][0-9]{1,3})?(\\s|\\W|$))", replacement);
+    }
+
+    private String filterDate(String line, String replacement) {
+        if(line.matches("(.*[0-9]{2}[,.\\-\\/][0-9]{2}[,.\\-\\/][0-9]{4}.*)")){
+            return line.replaceAll("([0-9]{2}[,.-\\/][0-9]{2}[,.-\\/][0-9]{4})", replacement);
+        }
+        else if(line.matches("(.*[0-9]{4}[,.\\-\\/][0-9]{2}[,.\\-\\/][0-9]{2}).*")){
+            return line.replaceAll("([0-9]{4}[,.\\-\\/][0-9]{2}[,.\\-\\/][0-9]{2})", replacement);
+        }
+
+        return line;
+
     }
 
     private String filterConsoleCommands(String line) {

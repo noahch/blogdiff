@@ -110,6 +110,17 @@ public class TravisService {
         return tree;
     }
 
+    public BuildLogTree getBuildLogTreeForTest(String log, boolean preprocess) {
+        String filteredLog;
+        if(preprocess){
+            filteredLog = preprocessorHandler.preprocessLog(log);
+        }else{
+            filteredLog = log;
+        }
+        BuildLogTree tree = travisMavenParsingHandler.parse(filteredLog, preprocess);
+        return tree;
+    }
+
     @CacheEvict(allEntries = true, value = "buildLogTree")
     @Scheduled(fixedDelay = 3 * 60 * 60 * 1000)
     public void reportCacheEvict() {

@@ -36,7 +36,8 @@ public class LineDifferencer implements Differencer {
                 }else{
                     // Check similarity --> Update
 
-                    if(s2(lines1[i], lines2[j]) <= 0.15){
+//                    if(s2(lines1[i], lines2[j]) <= 0.15){
+                    if(s2(lines1[i], lines2[j]) <= 0.10){
 //                        log.info(String.format("Index %d %s and %d %s matched as update", i,lines1[i] ,j ,lines2[j]));
                         actions.add(LineAction.builder()
                                 .contentBefore(lines1[i])

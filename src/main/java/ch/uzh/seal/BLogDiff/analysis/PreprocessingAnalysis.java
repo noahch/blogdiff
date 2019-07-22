@@ -2,24 +2,16 @@ package ch.uzh.seal.BLogDiff.analysis;
 
 import ch.uzh.seal.BLogDiff.differencing.LineDifferencer;
 import ch.uzh.seal.BLogDiff.mapping.NodeLevelMapper;
-import ch.uzh.seal.BLogDiff.model.DifferencingResult;
 import ch.uzh.seal.BLogDiff.model.parsing.BuildLogTree;
 import ch.uzh.seal.BLogDiff.model.parsing.EditTree;
-import ch.uzh.seal.BLogDiff.preprocessing.PreprocessorHandler;
 import ch.uzh.seal.BLogDiff.service.TravisService;
 import ch.uzh.seal.BLogDiff.utils.EditTreeUtils;
 import ch.uzh.seal.BLogDiff.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.util.Arrays;
-import java.util.Random;
 
 @Slf4j
 @Component
@@ -101,7 +93,7 @@ public class PreprocessingAnalysis {
 
         }
 
-        FileUtils.writeFile("C:\\Users\\noahc\\Google Drive\\uzh_s06\\BA\\r\\", "verifyProcessing.txt", sb.toString());
+        FileUtils.writeToSb("C:\\Users\\noahc\\Google Drive\\uzh_s06\\BA\\r\\", "verifyProcessing.txt", sb.toString());
 
     }
 
@@ -172,8 +164,8 @@ public class PreprocessingAnalysis {
 //                String newDir = outputDir + File.separator + file.getName() + File.separator + file.listFiles()[0].getName().split("_")[1] + File.separator;
 //                String log = FileUtils.readFile(currDir + File.separator +  "passed.txt");
 //                String processedLog = preprocessorHandler.preprocessLog(log);
-//                FileUtils.writeFile(newDir, "log.txt", log);
-//                FileUtils.writeFile(newDir, "log_processed.txt", processedLog);
+//                FileUtils.writeToSb(newDir, "log.txt", log);
+//                FileUtils.writeToSb(newDir, "log_processed.txt", processedLog);
 //            }
 //            log.info(file.getName());
 //        }
@@ -189,7 +181,7 @@ public class PreprocessingAnalysis {
 //                String fdir = outputDir + File.separator + file.getName() + File.separator + file.listFiles()[0].getName() + File.separator;
 //                String log = FileUtils.readFile(fdir + "log.txt");
 //                String processedLog = preprocessorHandler.preprocessLog(log);
-//                FileUtils.writeFile(fdir, "log_reProcessed.txt", processedLog);
+//                FileUtils.writeToSb(fdir, "log_reProcessed.txt", processedLog);
 //            }
 //        }
 //    }

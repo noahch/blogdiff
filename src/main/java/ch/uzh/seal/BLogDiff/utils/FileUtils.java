@@ -11,7 +11,7 @@ import java.util.Scanner;
 @Slf4j
 public class FileUtils {
 
-    public static void writeFile(String path, String filename, String content) {
+    public static void writeToSb(String path, String filename, String content) {
         try {
             checkIfDirectoryExistsOrCreate(path);
             FileWriter fileWriter = new FileWriter(path + filename);

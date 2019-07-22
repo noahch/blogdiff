@@ -9,7 +9,7 @@ public class EditTreeUtils {
     public static long getAdditions(EditTree editTree){
         long childActionCount = 0;
         for(EditAction editAction1: editTree.getChildrenActions()){
-            childActionCount += getAdditionsRec(editAction1, LineActionType.ADD);
+            childActionCount += getActionRec(editAction1, LineActionType.ADD);
         }
         return childActionCount;
     }
@@ -17,7 +17,7 @@ public class EditTreeUtils {
     public static long getDeletions(EditTree editTree){
         long childActionCount = 0;
         for(EditAction editAction1: editTree.getChildrenActions()){
-            childActionCount += getAdditionsRec(editAction1, LineActionType.DELETE);
+            childActionCount += getActionRec(editAction1, LineActionType.DELETE);
         }
         return childActionCount;
     }
@@ -25,7 +25,7 @@ public class EditTreeUtils {
     public static long getMoves(EditTree editTree){
         long childActionCount = 0;
         for(EditAction editAction1: editTree.getChildrenActions()){
-            childActionCount += getAdditionsRec(editAction1,LineActionType.MOVE);
+            childActionCount += getActionRec(editAction1,LineActionType.MOVE);
         }
         return childActionCount;
     }
@@ -33,19 +33,19 @@ public class EditTreeUtils {
     public static long getUpdates(EditTree editTree){
         long childActionCount = 0;
         for(EditAction editAction1: editTree.getChildrenActions()){
-            childActionCount += getAdditionsRec(editAction1, LineActionType.UPDATE);
+            childActionCount += getActionRec(editAction1, LineActionType.UPDATE);
         }
         return childActionCount;
     }
 
-    private static long getAdditionsRec(EditAction editAction, LineActionType type){
+    private static long getActionRec(EditAction editAction, LineActionType type){
         if(editAction.getChildrenActions() == null || editAction.getChildrenActions().size() < 1){
             return editAction.getLinesBeforeActions().stream().filter(lineAction -> lineAction.getType() == type).count()
                     + editAction.getLinesAfterActions().stream().filter(lineAction -> lineAction.getType() == type).count();
         }
         long childActionCount = 0;
         for(EditAction editAction1: editAction.getChildrenActions()){
-            childActionCount += getAdditionsRec(editAction1, type);
+            childActionCount += getActionRec(editAction1, type);
         }
         return editAction.getLinesBeforeActions().stream().filter(lineAction -> lineAction.getType() == type).count()
                 + editAction.getLinesAfterActions().stream().filter(lineAction -> lineAction.getType() == type).count()

@@ -4,7 +4,6 @@ import ch.uzh.seal.BLogDiff.model.parsing.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,6 +49,7 @@ public class MavenParser implements Parser {
 
 
     private BuildLogNode mapModule(LogLine[] lines, int start, int end, List<String> moduleNames) {
+        List<String> goalNames = new ArrayList<>();
         int nextGoal =  getIndexOfNextGoal(lines,start, end);
         if (nextGoal == -1){
             return BuildLogNode.builder()
@@ -60,7 +60,7 @@ public class MavenParser implements Parser {
         }else {
             return BuildLogNode.builder()
                     .linesBefore(subArrayToList(lines, start, nextGoal))
-                    .logNodes(mapGoals(lines, start, end))
+                    .logNodes(mapGoals(lines, start, end, goalNames))
                     .nodeName(extractModuleName(lines[start+1].getContent(), moduleNames))
                     .build();
         }
@@ -71,9 +71,9 @@ public class MavenParser implements Parser {
         Matcher matcher = pattern.matcher(logLine);
         if (matcher.find())
         {
-           String moduleName = matcher.group(1).replace("Building ", "");
+           String moduleName = (matcher.group(1).replace("Building ", "")).trim();
            if(moduleNames.contains(moduleName)){
-               moduleName = moduleName + " 1";
+               moduleName = moduleName + " " + getNextNameNumber(moduleNames, moduleName);
            }
            moduleNames.add(moduleName);
            return moduleName;
@@ -81,6 +81,14 @@ public class MavenParser implements Parser {
         }
         log.warn("Module name could not be extracted.");
         return logLine;
+    }
+
+    private int getNextNameNumber(List<String> names, String name){
+        int i = 1;
+        while(names.contains(name + " " + i)){
+            i++;
+        }
+        return i;
     }
 
     private int getIndexOfNextModule(LogLine[] lines, int start){
@@ -94,7 +102,7 @@ public class MavenParser implements Parser {
         return -1;
     }
 
-    private List<BuildLogNode> mapGoals(LogLine[] lines, int start, int end ) {
+    private List<BuildLogNode> mapGoals(LogLine[] lines, int start, int end, List<String> goalNames) {
         int processingIndex = start;
         List<BuildLogNode> goals = new ArrayList<>();
         while (getIndexOfNextGoal(lines, processingIndex, end) != -1) {
@@ -103,14 +111,19 @@ public class MavenParser implements Parser {
             if (nextIndex == -1){
                 nextIndex = end;
             }
-            goals.add(mapGoal(lines, processingIndex, nextIndex));
+            goals.add(mapGoal(lines, processingIndex, nextIndex, goalNames));
             processingIndex++;
         }
         return goals;
     }
 
-    private BuildLogNode mapGoal(LogLine[] lines, int start, int end) {
-        return BuildLogNode.builder().nodeName(extractPlugin(lines[start].getContent()) + " " + extractGoal(lines[start].getContent()))
+    private BuildLogNode mapGoal(LogLine[] lines, int start, int end, List<String> goalNames) {
+        String goalName = extractPlugin(lines[start].getContent()) + " " + extractGoal(lines[start].getContent());
+        if(goalNames.contains(goalName)){
+            goalName = goalName + " " + getNextNameNumber(goalNames, goalName);
+        }
+        goalNames.add(goalName);
+        return BuildLogNode.builder().nodeName(goalName)
                 .linesBefore(subArrayToList(lines,start,end)).build();
     }
 
@@ -120,7 +133,7 @@ public class MavenParser implements Parser {
         Matcher matcher = pattern.matcher(logLine);
         if (matcher.find())
         {
-            return matcher.group(1).substring(0, matcher.group(1).length()-1);
+            return (matcher.group(1).substring(0, matcher.group(1).length()-1)).trim();
         }
         log.warn("Plugin name could not be extracted.");
         return logLine;

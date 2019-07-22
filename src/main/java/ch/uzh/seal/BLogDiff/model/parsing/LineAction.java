@@ -14,4 +14,7 @@ public class LineAction {
     private int positionAfter;
     private LineActionType type;
 
+    // Only for analysis
+    private long lineIdx;
+
 }
