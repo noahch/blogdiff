@@ -105,12 +105,13 @@ public class DifferencingAnalysis {
                 {"432465252","435620282"}, // spotify/docker-client
                 {"496369595","499906077"}, // spring-projects/spring-data-elasticsearch
                 {"407839576","407842660"}, // wstrange/GoogleAuth
-                {"556112100","557479328"}, // google/dagger
-                {"421217921","421231392"}, // swagger-api/swagger-core
-                {"543128552","543716155"}, // apache/struts
+//                {"556112100","557479328"}, // google/dagger
+//                {"421217921","421231392"}, // swagger-api/swagger-core
+//                {"543128552","543716155"}, // apache/struts
                 {"499807007","499816460"}, // spring-projects/spring-data-jpa
                 {"339309648","375182522"}, // Nukkit/Nukkit
                 {"529851442","532916599"}, // google/compile-testing
+                {"445185673","445783150"}, // tumblr/jumblr
                 {"445185673","445783150"}, // tumblr/jumblr
                 {"545469486","547020095"}  // google/auto
         };
@@ -130,7 +131,7 @@ public class DifferencingAnalysis {
 
         };
 
-//        processJobList(jobs, "successfulSequence.txt");
+        processJobList(jobs, "successfulSequence.txt");
         processJobList(jobsFailed, "failedSequence.txt");
     }
 

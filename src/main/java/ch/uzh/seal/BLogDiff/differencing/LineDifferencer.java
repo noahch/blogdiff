@@ -16,6 +16,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LineDifferencer implements Differencer {
 
+    private double threshold;
+
+    public LineDifferencer(double threshold){
+        this.threshold = threshold;
+    }
+
+    public LineDifferencer(){
+        this.threshold = 0.5;
+    }
+
     public List<LineAction> diffLogLines(List<LogLine> lines1, List<LogLine> lines2) {
         String[] l1 = lines1 == null ? new String[]{} : lines1.stream().map(logLine -> {return logLine.getContent();}).collect(Collectors.toList()).toArray(new String[0]);
         String[] l2 = lines2 == null ? new String[]{} : lines2.stream().map(logLine -> {return logLine.getContent();}).collect(Collectors.toList()).toArray(new String[0]);
@@ -37,7 +47,12 @@ public class LineDifferencer implements Differencer {
                     // Check similarity --> Update
 
 //                    if(s2(lines1[i], lines2[j]) <= 0.15){
-                    if(s2(lines1[i], lines2[j]) <= 0.10){
+                    double threshold = this.threshold;
+                    if(lines1[i].contains("Download") && lines2[j].contains("Download")){
+                        threshold = 10 / lines1[i].length();
+                    }
+
+                    if(s2(lines1[i], lines2[j]) <= threshold){
 //                        log.info(String.format("Index %d %s and %d %s matched as update", i,lines1[i] ,j ,lines2[j]));
                         actions.add(LineAction.builder()
                                 .contentBefore(lines1[i])

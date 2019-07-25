@@ -15,6 +15,7 @@ import ch.uzh.seal.BLogDiff.repository.SurveyRepository;
 import ch.uzh.seal.BLogDiff.service.GitService;
 import ch.uzh.seal.BLogDiff.service.TravisService;
 import ch.uzh.seal.BLogDiff.utils.EditTreeUtils;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

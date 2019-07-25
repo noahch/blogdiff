@@ -49,7 +49,8 @@ public class PreprocessingAnalysis {
             log.info("Started with " +j1+"_"+j2+" no filter");
             double l1 = travisService.getLog(j1).getContent().split("(\\r?\\n)|\\r").length;
             double l2 = travisService.getLog(j2).getContent().split("(\\r?\\n)|\\r").length;
-            double length = (l1+l2)/2;
+            double length = max(l1,l2);
+
             BuildLogTree tree1 = travisService.getBuildLogTree(j1,false);
             BuildLogTree tree2 = travisService.getBuildLogTree(j2,false);
             EditTree editTree = nodeLevelMapper.map(tree1, tree2, new LineDifferencer());
@@ -58,6 +59,8 @@ public class PreprocessingAnalysis {
             double d = EditTreeUtils.getDeletions(editTree);
             double m = EditTreeUtils.getMoves(editTree);
             double u = EditTreeUtils.getUpdates(editTree);
+            length += max(a,d);
+
             sb.append("AB;"+a/length+";"+j1+"_"+j2+"\n");
             sb.append("DB;"+d/length+";"+j1+"_"+j2+"\n");
             sb.append("MB;"+m/length+";"+j1+"_"+j2+"\n");
@@ -97,6 +100,109 @@ public class PreprocessingAnalysis {
 
     }
 
+    @RequestMapping("/analysis/verifyThreshold")
+    public void verifyThreshold(){
+
+        //successful sequence
+        String[][] jobs =  {
+                {"555684793","555819512"}, // noahch/blogdiff
+                {"559110346","559670786"}, // apache/accumulo
+                {"558000323","559134087"}, // asciidocfx/AsciidocFX
+                {"535133332","535138722"}, // simpligility/android-maven-plugin
+                {"432465252","435620282"}, // spotify/docker-client
+                {"496369595","499906077"}, // spring-projects/spring-data-elasticsearch
+                {"407839576","407842660"}, // wstrange/GoogleAuth
+//                {"556112100","557479328"}, // google/dagger
+//                {"421217921","421231392"}, // swagger-api/swagger-core
+                {"543128552","543716155"}, // apache/struts
+                {"499807007","499816460"}, // spring-projects/spring-data-jpa
+                {"339309648","375182522"}, // Nukkit/Nukkit
+                {"529851442","532916599"}, // google/compile-testing
+                {"445185673","445783150"}, // tumblr/jumblr
+                {"545469486","547020095"}  // google/auto
+        };
+
+        double[] thresholds = {0.5,0.4,0.3,0.2,0.1};
+        StringBuilder sb = new StringBuilder();
+        sb.append("Threshold;A;D;U;M;Total\n");
+        for(int i = 0; i < jobs.length; i++) {
+
+            for(int t = 0; t < thresholds.length; t++){
+                String j1 = jobs[i][0];
+                String j2 = jobs[i][1];
+                log.info("Started:" + i);
+                BuildLogTree tree1 = travisService.getBuildLogTree(j1,true);
+                BuildLogTree tree2 = travisService.getBuildLogTree(j2,true);
+                EditTree editTree = nodeLevelMapper.map(tree1, tree2, new LineDifferencer(thresholds[t]));
+                double a = EditTreeUtils.getAdditions(editTree);
+                double d = EditTreeUtils.getDeletions(editTree);
+                double m = EditTreeUtils.getMoves(editTree);
+                double u = EditTreeUtils.getUpdates(editTree);
+                sb.append(thresholds[t]+";"+a+";"+d+";"+u+";"+m+";"+(a+m+d+u)+"\n");
+
+            }
+
+        }
+        FileUtils.writeToSb("C:\\Users\\noahc\\Google Drive\\uzh_s06\\BA\\data\\", "nm_thresholds.txt", sb.toString());
+
+
+    }
+
+    @RequestMapping("/analysis/series")
+    public void verifySeries(){
+        String[][] jobs = {
+                                {"543716155","540589755","538213481","532276588","525944159"},
+                                {"562735148","558129364","555936615","551622624","550999527"},
+                                {"445783150","445185673","445153479","445152588","445071115"}
+                            };
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Run;Dist;A;D;U;M;Total;Len\n");
+
+        for(int i = 0; i < jobs.length; i++){
+            for(int j = 1; j < jobs[i].length; j++){
+                String j1 = jobs[i][0];
+                String j2 = jobs[i][j];
+                log.info("Started:" + i);
+                double l1 = travisService.getLog(j1).getContent().split("(\\r?\\n)|\\r").length;
+                double l2 = travisService.getLog(j2).getContent().split("(\\r?\\n)|\\r").length;
+                double length = max(l1,l2);
+                BuildLogTree tree1 = travisService.getBuildLogTree(j2,true);
+                BuildLogTree tree2 = travisService.getBuildLogTree(j1,true);
+                EditTree editTree = nodeLevelMapper.map(tree1, tree2, new LineDifferencer());
+                double a = EditTreeUtils.getAdditions(editTree);
+                double d = EditTreeUtils.getDeletions(editTree);
+                double m = EditTreeUtils.getMoves(editTree);
+                double u = EditTreeUtils.getUpdates(editTree);
+                sb.append(i+";"+j+";"+a+";"+d+";"+u+";"+m+";"+(a+m+d+u)+";"+length+"\n");
+            }
+        }
+        FileUtils.writeToSb("C:\\Users\\noahc\\Google Drive\\uzh_s06\\BA\\data\\", "series.txt", sb.toString());
+
+
+        sb = new StringBuilder();
+        sb.append("Run;Dist;A;D;U;M;Total;Len\n");
+
+        for(int i = 0; i < jobs.length; i++){
+            for(int j = 1; j < jobs[i].length; j++){
+                String j1 = jobs[i][j-1];
+                String j2 = jobs[i][j];
+                log.info("Started:" + i);
+                double l1 = travisService.getLog(j1).getContent().split("(\\r?\\n)|\\r").length;
+                double l2 = travisService.getLog(j2).getContent().split("(\\r?\\n)|\\r").length;
+                double length = max(l1,l2);
+                BuildLogTree tree1 = travisService.getBuildLogTree(j2,true);
+                BuildLogTree tree2 = travisService.getBuildLogTree(j1,true);
+                EditTree editTree = nodeLevelMapper.map(tree1, tree2, new LineDifferencer());
+                double a = EditTreeUtils.getAdditions(editTree);
+                double d = EditTreeUtils.getDeletions(editTree);
+                double m = EditTreeUtils.getMoves(editTree);
+                double u = EditTreeUtils.getUpdates(editTree);
+                sb.append(i+";"+j+";"+a+";"+d+";"+u+";"+m+";"+(a+m+d+u)+";"+length+"\n");
+            }
+        }
+        FileUtils.writeToSb("C:\\Users\\noahc\\Google Drive\\uzh_s06\\BA\\data\\", "seriesSuc.txt", sb.toString());
+    }
 //
 //    private static String inputDirGh;
 //
@@ -185,4 +291,10 @@ public class PreprocessingAnalysis {
 //            }
 //        }
 //    }
+    public static double max(double a, double b){
+        if(a < b){
+            return b;
+        }
+        return a;
+    }
 }
